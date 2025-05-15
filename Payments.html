@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบบันทึกการจ่ายเงินเรียนพิเศษ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Prompt', sans-serif;
+            background: linear-gradient(135deg, #f5f0ff 0%, #fff0f7 100%);
+            min-height: 100vh;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #a370f7 0%, #f472b6 100%);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #a370f7 0%, #f472b6 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(163, 112, 247, 0.3);
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(163, 112, 247, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .input-field {
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        
+        .input-field:focus {
+            border-color: #a370f7;
+            box-shadow: 0 0 0 3px rgba(163, 112, 247, 0.2);
+        }
+        
+        .tab-active {
+            background: linear-gradient(135deg, #a370f7 0%, #f472b6 100%);
+            color: white;
+        }
+        
+        .tab {
+            transition: all 0.3s ease;
+        }
+        
+        .tab:hover:not(.tab-active) {
+            background-color: #f3e8ff;
+        }
+        
+        .badge {
+            background-color: #10b981;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .student-paid {
+            background-color: #ecfdf5;
+            border-left: 3px solid #10b981;
+        }
+        
+        .student-unpaid {
+            background-color: #fff1f2;
+            border-left: 3px solid #f43f5e;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="container mx-auto px-4 py-8 max-w-5xl">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <h1 class="text-3xl font-bold text-transparent bg-clip-text gradient-bg">ระบบบันทึกการจ่ายเงินเรียนพิเศษ</h1>
+                    <p class="text-gray-600">บันทึกและติดตามการชำระเงินของนักเรียน</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span id="userStatus" class="text-sm text-gray-600">โหมด: ผู้ใช้งานทั่วไป</span>
+                    <button id="loginBtn" onclick="toggleLoginModal()" class="btn-primary px-4 py-2 rounded-full text-white font-medium">
+                        เข้าสู่ระบบ
+                    </button>
+                    <button id="logoutBtn" onclick="logout()" class="hidden px-4 py-2 rounded-full bg-gray-200 text-gray-700 font-medium hover:bg-gray-300">
+                        ออกจากระบบ
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Payment Form -->
+            <div class="md:col-span-2">
+                <div class="card p-6">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800">บันทึกการชำระเงิน</h2>
+                    <form id="paymentForm" onsubmit="submitPayment(event)">
+                        <div class="mb-4">
+                            <label for="paymentDate" class="block text-sm font-medium text-gray-700 mb-1">วันที่ชำระเงิน</label>
+                            <input type="date" id="paymentDate" required class="input-field w-full px-4 py-2 rounded-lg" value="">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="studentSelect" class="block text-sm font-medium text-gray-700 mb-1">นักเรียน</label>
+                            <div class="relative">
+                                <select id="studentSelect" required class="input-field w-full px-4 py-2 rounded-lg appearance-none">
+                                    <option value="" disabled selected>เลือกนักเรียน</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">จำนวนเงิน (บาท)</label>
+                            <div class="relative">
+                                <input type="number" id="amount" required min="1" step="1" class="input-field w-full px-4 py-2 rounded-lg" placeholder="0">
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <span class="text-gray-500">฿</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn-primary w-full py-3 rounded-lg text-white font-medium">
+                            บันทึกการชำระเงิน
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Student Management (Admin Only) -->
+                <div id="adminPanel" class="card p-6 mt-6 hidden">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800">จัดการรายชื่อนักเรียน</h2>
+                    <div class="flex space-x-2">
+                        <input type="text" id="newStudentName" class="input-field flex-1 px-4 py-2 rounded-lg" placeholder="ชื่อนักเรียนใหม่">
+                        <button onclick="addStudent()" class="btn-primary px-4 py-2 rounded-lg text-white font-medium">
+                            เพิ่ม
+                        </button>
+                    </div>
+                    <div class="mt-4">
+                        <h3 class="text-sm font-medium text-gray-700 mb-2">รายชื่อนักเรียนทั้งหมด</h3>
+                        <ul id="studentList" class="bg-white rounded-lg border border-gray-200 divide-y divide-gray-200 max-h-60 overflow-y-auto">
+                            <!-- Student list will be populated here -->
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Monthly Payment Summary -->
+                <div class="card p-6 mt-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-gray-800">สรุปการชำระเงินรายเดือน</h2>
+                        <div class="relative">
+                            <select id="summaryMonthSelect" class="input-field px-4 py-2 rounded-lg appearance-none" onchange="updateMonthlySummary()">
+                                <!-- Month options will be populated here -->
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm text-gray-600">จำนวนนักเรียนทั้งหมด:</span>
+                            <span id="totalStudentsCount" class="font-semibold">0 คน</span>
+                        </div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm text-gray-600">จำนวนนักเรียนที่ชำระแล้ว:</span>
+                            <span id="paidStudentsCount" class="font-semibold">0 คน</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">ยอดเงินรวมในเดือนนี้:</span>
+                            <span id="monthlyTotalAmount" class="font-semibold">0 บาท</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-2 flex justify-between items-center">
+                        <h3 class="text-sm font-medium text-gray-700">สถานะการชำระเงินของนักเรียน</h3>
+                        <div class="flex space-x-2 text-xs">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 rounded-full bg-green-500 mr-1"></div>
+                                <span>ชำระแล้ว</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 rounded-full bg-red-500 mr-1"></div>
+                                <span>ยังไม่ชำระ</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="paymentStatusList" class="bg-white rounded-lg border border-gray-200 divide-y divide-gray-200 max-h-80 overflow-y-auto">
+                        <!-- Payment status list will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Panel -->
+            <div class="md:col-span-1">
+                <div class="card p-6">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800">สถิติการชำระเงิน</h2>
+                    
+                    <!-- Tabs -->
+                    <div class="flex mb-4 bg-gray-100 rounded-lg p-1">
+                        <button onclick="changeStatView('student')" class="tab tab-active flex-1 py-2 px-3 text-sm font-medium rounded-md">รายบุคคล</button>
+                        <button onclick="changeStatView('daily')" class="tab flex-1 py-2 px-3 text-sm font-medium rounded-md">รายวัน</button>
+                        <button onclick="changeStatView('monthly')" class="tab flex-1 py-2 px-3 text-sm font-medium rounded-md">รายเดือน</button>
+                        <button onclick="changeStatView('yearly')" class="tab flex-1 py-2 px-3 text-sm font-medium rounded-md">รายปี</button>
+                    </div>
+                    
+                    <!-- Student Stats View -->
+                    <div id="studentStatsView" class="stat-view">
+                        <div class="mb-4">
+                            <label for="statStudentSelect" class="block text-sm font-medium text-gray-700 mb-1">เลือกนักเรียน</label>
+                            <select id="statStudentSelect" class="input-field w-full px-4 py-2 rounded-lg" onchange="loadStudentStats()">
+                                <option value="" disabled selected>เลือกนักเรียน</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label for="statMonthSelect" class="block text-sm font-medium text-gray-700 mb-1">เลือกเดือน</label>
+                            <select id="statMonthSelect" class="input-field w-full px-4 py-2 rounded-lg" onchange="loadStudentStats()">
+                                <option value="all">ทั้งหมด</option>
+                                <option value="1">มกราคม</option>
+                                <option value="2">กุมภาพันธ์</option>
+                                <option value="3">มีนาคม</option>
+                                <option value="4">เมษายน</option>
+                                <option value="5">พฤษภาคม</option>
+                                <option value="6">มิถุนายน</option>
+                                <option value="7">กรกฎาคม</option>
+                                <option value="8">สิงหาคม</option>
+                                <option value="9">กันยายน</option>
+                                <option value="10">ตุลาคม</option>
+                                <option value="11">พฤศจิกายน</option>
+                                <option value="12">ธันวาคม</option>
+                            </select>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-sm text-gray-600">ยอดเงินในเดือนที่เลือก:</span>
+                                <span id="selectedMonthTotal" class="font-semibold">0 บาท</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">ยอดเงินสะสมทั้งหมด:</span>
+                                <span id="studentTotalAmount" class="font-semibold">0 บาท</span>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <h3 class="text-sm font-medium text-gray-700 mb-2">ประวัติการชำระเงิน</h3>
+                            <ul id="paymentHistory" class="bg-white rounded-lg border border-gray-200 divide-y divide-gray-200 max-h-60 overflow-y-auto">
+                                <!-- Payment history will be populated here -->
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Other Stats Views -->
+                    <div id="dailyStatsView" class="stat-view hidden">
+                        <canvas id="dailyChart" class="w-full h-64"></canvas>
+                    </div>
+                    
+                    <div id="monthlyStatsView" class="stat-view hidden">
+                        <canvas id="monthlyChart" class="w-full h-64"></canvas>
+                    </div>
+                    
+                    <div id="yearlyStatsView" class="stat-view hidden">
+                        <canvas id="yearlyChart" class="w-full h-64"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-800">เข้าสู่ระบบผู้ดูแล</h2>
+                <button onclick="toggleLoginModal()" class="text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <form id="loginForm" onsubmit="login(event)">
+                <div class="mb-4">
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">ชื่อผู้ใช้</label>
+                    <input type="text" id="username" required class="input-field w-full px-4 py-2 rounded-lg" placeholder="ชื่อผู้ใช้">
+                </div>
+                <div class="mb-6">
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน</label>
+                    <input type="password" id="password" required class="input-field w-full px-4 py-2 rounded-lg" placeholder="รหัสผ่าน">
+                </div>
+                <button type="submit" class="btn-primary w-full py-3 rounded-lg text-white font-medium">
+                    เข้าสู่ระบบ
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let isAdmin = false;
+        let students = [];
+        let payments = [];
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzTT6klytnRiPlb_vBILQVVrAzjFkiHauedggP2DNd6snqIqsngvnrQKo6PpvP0yLBa/exec';
+        let charts = {
+            daily: null,
+            monthly: null,
+            yearly: null
+        };
+        
+        // Set today's date as default
+        document.getElementById('paymentDate').valueAsDate = new Date();
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStudents();
+            loadPayments();
+            populateMonthOptions();
+        });
+        
+        // Populate month options for summary
+        function populateMonthOptions() {
+            const summaryMonthSelect = document.getElementById('summaryMonthSelect');
+            const currentDate = new Date();
+            const currentYear = currentDate.getFullYear();
+            const currentMonth = currentDate.getMonth();
+            
+            // Clear existing options
+            summaryMonthSelect.innerHTML = '';
+            
+            // Add options for the last 12 months
+            for (let i = 0; i < 12; i++) {
+                const monthDate = new Date(currentYear, currentMonth - i, 1);
+                const monthValue = `${monthDate.getFullYear()}-${monthDate.getMonth() + 1}`;
+                const monthText = monthDate.toLocaleDateString('th-TH', { year: 'numeric', month: 'long' });
+                
+                const option = document.createElement('option');
+                option.value = monthValue;
+                option.textContent = monthText;
+                summaryMonthSelect.appendChild(option);
+            }
+            
+            // Update summary for the current month
+            updateMonthlySummary();
+        }
+        
+        // Authentication functions
+        function toggleLoginModal() {
+            const modal = document.getElementById('loginModal');
+            modal.classList.toggle('hidden');
+            
+            if (!modal.classList.contains('hidden')) {
+                document.getElementById('username').focus();
+            }
+        }
+        
+        function login(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (username === 'admin' && password === '1234') {
+                isAdmin = true;
+                document.getElementById('userStatus').textContent = 'โหมด: ผู้ดูแลระบบ';
+                document.getElementById('loginBtn').classList.add('hidden');
+                document.getElementById('logoutBtn').classList.remove('hidden');
+                document.getElementById('adminPanel').classList.remove('hidden');
+                toggleLoginModal();
+                
+                // Reset form
+                document.getElementById('loginForm').reset();
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'เข้าสู่ระบบสำเร็จ',
+                    text: 'คุณได้เข้าสู่โหมดผู้ดูแลระบบแล้ว',
+                    confirmButtonColor: '#a370f7'
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เข้าสู่ระบบไม่สำเร็จ',
+                    text: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง',
+                    confirmButtonColor: '#a370f7'
+                });
+            }
+        }
+        
+        function logout() {
+            isAdmin = false;
+            document.getElementById('userStatus').textContent = 'โหมด: ผู้ใช้งานทั่วไป';
+            document.getElementById('loginBtn').classList.remove('hidden');
+            document.getElementById('logoutBtn').classList.add('hidden');
+            document.getElementById('adminPanel').classList.add('hidden');
+            
+            Swal.fire({
+                icon: 'info',
+                title: 'ออกจากระบบแล้ว',
+                text: 'คุณได้ออกจากโหมดผู้ดูแลระบบแล้ว',
+                confirmButtonColor: '#a370f7'
+            });
+        }
+        
+        // Student management functions
+        function loadStudents() {
+            fetchData('getStudents', {}, function(data) {
+                if (data && data.students) {
+                    students = data.students;
+                    updateStudentLists();
+                    updateMonthlySummary();
+                }
+            });
+        }
+        
+        function updateStudentLists() {
+            // Update student dropdown in payment form
+            const studentSelect = document.getElementById('studentSelect');
+            const statStudentSelect = document.getElementById('statStudentSelect');
+            
+            // Clear existing options except the first one
+            while (studentSelect.options.length > 1) {
+                studentSelect.remove(1);
+            }
+            
+            // Clear stat student select
+            while (statStudentSelect.options.length > 1) {
+                statStudentSelect.remove(1);
+            }
+            
+            // Add students to dropdowns
+            students.forEach(student => {
+                const option1 = document.createElement('option');
+                option1.value = student;
+                option1.textContent = student;
+                studentSelect.appendChild(option1);
+                
+                const option2 = document.createElement('option');
+                option2.value = student;
+                option2.textContent = student;
+                statStudentSelect.appendChild(option2);
+            });
+            
+            // Update student list in admin panel
+            if (isAdmin) {
+                const studentList = document.getElementById('studentList');
+                studentList.innerHTML = '';
+                
+                students.forEach(student => {
+                    const li = document.createElement('li');
+                    li.className = 'flex justify-between items-center px-4 py-3 hover:bg-gray-50';
+                    
+                    const span = document.createElement('span');
+                    span.textContent = student;
+                    li.appendChild(span);
+                    
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'text-red-500 hover:text-red-700';
+                    deleteBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>';
+                    deleteBtn.onclick = function() { removeStudent(student); };
+                    li.appendChild(deleteBtn);
+                    
+                    studentList.appendChild(li);
+                });
+            }
+        }
+        
+        function addStudent() {
+            if (!isAdmin) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่มีสิทธิ์',
+                    text: 'คุณต้องเข้าสู่ระบบเป็นผู้ดูแลระบบก่อน',
+                    confirmButtonColor: '#a370f7'
+                });
+                return;
+            }
+            
+            const newStudentName = document.getElementById('newStudentName').value.trim();
+            
+            if (!newStudentName) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ข้อมูลไม่ครบถ้วน',
+                    text: 'กรุณากรอกชื่อนักเรียน',
+                    confirmButtonColor: '#a370f7'
+                });
+                return;
+            }
+            
+            if (students.includes(newStudentName)) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ข้อมูลซ้ำ',
+                    text: 'มีนักเรียนชื่อนี้อยู่แล้ว',
+                    confirmButtonColor: '#a370f7'
+                });
+                return;
+            }
+            
+            Swal.fire({
+                title: 'กำลังเพิ่มนักเรียน...',
+                text: 'กรุณารอสักครู่',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            fetchData('addStudent', { student: newStudentName }, function(data) {
+                if (data && data.success) {
+                    students.push(newStudentName);
+                    updateStudentLists();
+                    document.getElementById('newStudentName').value = '';
+                    updateMonthlySummary();
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'เพิ่มนักเรียนสำเร็จ',
+                        confirmButtonColor: '#a370f7'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: data.error || 'ไม่สามารถเพิ่มนักเรียนได้',
+                        confirmButtonColor: '#a370f7'
+                    });
+                }
+            });
+        }
+        
+        function removeStudent(studentName) {
+            if (!isAdmin) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่มีสิทธิ์',
+                    text: 'คุณต้องเข้าสู่ระบบเป็นผู้ดูแลระบบก่อน',
+                    confirmButtonColor: '#a370f7'
+                });
+                return;
+            }
+            
+            Swal.fire({
+                title: 'ยืนยันการลบ',
+                text: `คุณต้องการลบ ${studentName} ออกจากรายชื่อนักเรียนหรือไม่?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#a370f7',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'ใช่, ลบเลย',
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'กำลังลบนักเรียน...',
+                        text: 'กรุณารอสักครู่',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    fetchData('removeStudent', { student: studentName }, function(data) {
+                        if (data && data.success) {
+                            students = students.filter(s => s !== studentName);
+                            updateStudentLists();
+                            updateMonthlySummary();
+                            
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'ลบนักเรียนสำเร็จ',
+                                confirmButtonColor: '#a370f7'
+                            });
+                            
+                            // Reload payments to update statistics
+                            loadPayments();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'เกิดข้อผิดพลาด',
+                                text: data.error || 'ไม่สามารถลบนักเรียนได้',
+                                confirmButtonColor: '#a370f7'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Payment functions
+        function submitPayment(event) {
+            event.preventDefault();
+            
+            const paymentDate = document.getElementById('paymentDate').value;
+            const student = document.getElementById('studentSelect').value;
+            const amount = parseInt(document.getElementById('amount').value);
+            
+            if (!paymentDate || !student || isNaN(amount) || amount <= 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ข้อมูลไม่ครบถ้วน',
+                    text: 'กรุณากรอกข้อมูลให้ครบถ้วน',
+                    confirmButtonColor: '#a370f7'
+                });
+                return;
+            }
+            
+            Swal.fire({
+                title: 'กำลังบันทึกข้อมูล...',
+                text: 'กรุณารอสักครู่',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            const paymentData = {
+                date: paymentDate,
+                student: student,
+                amount: amount
+            };
+            
+            fetchData('addPayment', paymentData, function(data) {
+                if (data && data.success) {
+                    document.getElementById('paymentForm').reset();
+                    document.getElementById('paymentDate').valueAsDate = new Date();
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'บันทึกการชำระเงินสำเร็จ',
+                        text: `บันทึกการชำระเงินของ ${student} จำนวน ${amount} บาท เรียบร้อยแล้ว`,
+                        confirmButtonColor: '#a370f7'
+                    });
+                    
+                    // Reload payments to update statistics
+                    loadPayments();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: data.error || 'ไม่สามารถบันทึกการชำระเงินได้',
+                        confirmButtonColor: '#a370f7'
+                    });
+                }
+            });
+        }
+        
+        function loadPayments() {
+            fetchData('getPayments', {}, function(data) {
+                if (data && data.payments) {
+                    payments = data.payments.map(p => ({
+                        date: new Date(p.date),
+                        student: p.student,
+                        amount: p.amount
+                    }));
+                    
+                    // Update statistics
+                    updateStatistics();
+                    updateMonthlySummary();
+                }
+            });
+        }
+        
+        // Monthly summary functions
+        function updateMonthlySummary() {
+            const summaryMonthSelect = document.getElementById('summaryMonthSelect');
+            if (!summaryMonthSelect.value) return;
+            
+            const [year, month] = summaryMonthSelect.value.split('-').map(Number);
+            
+            // Filter payments for the selected month
+            const monthPayments = payments.filter(p => 
+                p.date.getFullYear() === year && 
+                p.date.getMonth() + 1 === month
+            );
+            
+            // Calculate total amount for the month
+            const monthTotal = monthPayments.reduce((sum, p) => sum + p.amount, 0);
+            document.getElementById('monthlyTotalAmount').textContent = `${monthTotal.toLocaleString()} บาท`;
+            
+            // Get students who paid in this month
+            const paidStudents = [...new Set(monthPayments.map(p => p.student))];
+            document.getElementById('paidStudentsCount').textContent = `${paidStudents.length} คน`;
+            document.getElementById('totalStudentsCount').textContent = `${students.length} คน`;
+            
+            // Update payment status list
+            const paymentStatusList = document.getElementById('paymentStatusList');
+            paymentStatusList.innerHTML = '';
+            
+            if (students.length === 0) {
+                paymentStatusList.innerHTML = '<div class="px-4 py-3 text-center text-gray-500">ไม่มีรายชื่อนักเรียน</div>';
+                return;
+            }
+            
+            // Sort students: paid first, then unpaid
+            const sortedStudents = [...students].sort((a, b) => {
+                const aIsPaid = paidStudents.includes(a);
+                const bIsPaid = paidStudents.includes(b);
+                if (aIsPaid && !bIsPaid) return -1;
+                if (!aIsPaid && bIsPaid) return 1;
+                return a.localeCompare(b);
+            });
+            
+            sortedStudents.forEach(student => {
+                const isPaid = paidStudents.includes(student);
+                const studentPayments = monthPayments.filter(p => p.student === student);
+                const totalPaid = studentPayments.reduce((sum, p) => sum + p.amount, 0);
+                
+                const div = document.createElement('div');
+                div.className = `px-4 py-3 ${isPaid ? 'student-paid' : 'student-unpaid'}`;
+                
+                div.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center">
+                            <span class="mr-2">${student}</span>
+                            ${isPaid ? '<span class="badge">ชำระแล้ว</span>' : '<span class="text-xs text-red-500">ยังไม่ชำระ</span>'}
+                        </div>
+                        <span class="font-medium">${totalPaid.toLocaleString()} บาท</span>
+                    </div>
+                    ${studentPayments.length > 0 ? 
+                        `<div class="mt-1 text-xs text-gray-500">
+                            ชำระเมื่อ: ${studentPayments.map(p => p.date.toLocaleDateString('th-TH', {day: 'numeric', month: 'short'})).join(', ')}
+                        </div>` : ''
+                    }
+                `;
+                
+                paymentStatusList.appendChild(div);
+            });
+        }
+        
+        // Statistics functions
+        function changeStatView(view) {
+            // Hide all views
+            document.querySelectorAll('.stat-view').forEach(el => {
+                el.classList.add('hidden');
+            });
+            
+            // Show selected view
+            document.getElementById(`${view}StatsView`).classList.remove('hidden');
+            
+            // Update active tab
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('tab-active');
+            });
+            
+            // Find the button that was clicked and add the active class
+            const buttons = document.querySelectorAll('.tab');
+            for (let i = 0; i < buttons.length; i++) {
+                if (buttons[i].onclick.toString().includes(`'${view}'`)) {
+                    buttons[i].classList.add('tab-active');
+                    break;
+                }
+            }
+            
+            // Update the specific view
+            switch (view) {
+                case 'student':
+                    loadStudentStats();
+                    break;
+                case 'daily':
+                    updateDailyChart();
+                    break;
+                case 'monthly':
+                    updateMonthlyChart();
+                    break;
+                case 'yearly':
+                    updateYearlyChart();
+                    break;
+            }
+        }
+        
+        function loadStudentStats() {
+            const student = document.getElementById('statStudentSelect').value;
+            const month = document.getElementById('statMonthSelect').value;
+            
+            if (!student) {
+                document.getElementById('selectedMonthTotal').textContent = '0 บาท';
+                document.getElementById('studentTotalAmount').textContent = '0 บาท';
+                document.getElementById('paymentHistory').innerHTML = '<li class="px-4 py-3 text-center text-gray-500">กรุณาเลือกนักเรียน</li>';
+                return;
+            }
+            
+            // Filter payments for the selected student
+            const studentPayments = payments.filter(p => p.student === student);
+            
+            // Calculate total amount
+            const totalAmount = studentPayments.reduce((sum, p) => sum + p.amount, 0);
+            document.getElementById('studentTotalAmount').textContent = `${totalAmount.toLocaleString()} บาท`;
+            
+            // Filter by month if selected
+            let filteredPayments = studentPayments;
+            if (month !== 'all') {
+                filteredPayments = studentPayments.filter(p => p.date.getMonth() + 1 === parseInt(month));
+            }
+            
+            // Calculate month total
+            const monthTotal = filteredPayments.reduce((sum, p) => sum + p.amount, 0);
+            document.getElementById('selectedMonthTotal').textContent = `${monthTotal.toLocaleString()} บาท`;
+            
+            // Update payment history
+            const paymentHistory = document.getElementById('paymentHistory');
+            paymentHistory.innerHTML = '';
+            
+            if (filteredPayments.length === 0) {
+                paymentHistory.innerHTML = '<li class="px-4 py-3 text-center text-gray-500">ไม่พบประวัติการชำระเงิน</li>';
+                return;
+            }
+            
+            // Sort payments by date (newest first)
+            filteredPayments.sort((a, b) => b.date - a.date);
+            
+            filteredPayments.forEach(payment => {
+                const li = document.createElement('li');
+                li.className = 'px-4 py-3';
+                
+                const dateStr = payment.date.toLocaleDateString('th-TH', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                
+                li.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">${dateStr}</span>
+                        <span class="font-medium">${payment.amount.toLocaleString()} บาท</span>
+                    </div>
+                `;
+                
+                paymentHistory.appendChild(li);
+            });
+        }
+        
+        function updateDailyChart() {
+            // Get the last 7 days
+            const today = new Date();
+            const dates = [];
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(today.getDate() - i);
+                dates.push(date);
+            }
+            
+            // Calculate daily totals
+            const dailyData = dates.map(date => {
+                const dayPayments = payments.filter(p => 
+                    p.date.getDate() === date.getDate() && 
+                    p.date.getMonth() === date.getMonth() && 
+                    p.date.getFullYear() === date.getFullYear()
+                );
+                
+                return {
+                    date: date,
+                    total: dayPayments.reduce((sum, p) => sum + p.amount, 0)
+                };
+            });
+            
+            // Format labels
+            const labels = dailyData.map(d => d.date.toLocaleDateString('th-TH', {
+                day: 'numeric',
+                month: 'short'
+            }));
+            
+            // Create or update chart
+            const ctx = document.getElementById('dailyChart').getContext('2d');
+            
+            if (charts.daily) {
+                charts.daily.data.labels = labels;
+                charts.daily.data.datasets[0].data = dailyData.map(d => d.total);
+                charts.daily.update();
+            } else {
+                charts.daily = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'ยอดเงินรายวัน (บาท)',
+                            data: dailyData.map(d => d.total),
+                            backgroundColor: 'rgba(167, 139, 250, 0.7)',
+                            borderColor: 'rgba(167, 139, 250, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value.toLocaleString() + ' ฿';
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.parsed.y.toLocaleString() + ' บาท';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        function updateMonthlyChart() {
+            // Get data for the last 12 months
+            const today = new Date();
+            const months = [];
+            for (let i = 11; i >= 0; i--) {
+                const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+                months.push(date);
+            }
+            
+            // Calculate monthly totals
+            const monthlyData = months.map(date => {
+                const monthPayments = payments.filter(p => 
+                    p.date.getMonth() === date.getMonth() && 
+                    p.date.getFullYear() === date.getFullYear()
+                );
+                
+                return {
+                    date: date,
+                    total: monthPayments.reduce((sum, p) => sum + p.amount, 0)
+                };
+            });
+            
+            // Format labels
+            const labels = monthlyData.map(d => d.date.toLocaleDateString('th-TH', {
+                month: 'short',
+                year: 'numeric'
+            }));
+            
+            // Create or update chart
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
+            
+            if (charts.monthly) {
+                charts.monthly.data.labels = labels;
+                charts.monthly.data.datasets[0].data = monthlyData.map(d => d.total);
+                charts.monthly.update();
+            } else {
+                charts.monthly = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'ยอดเงินรายเดือน (บาท)',
+                            data: monthlyData.map(d => d.total),
+                            backgroundColor: 'rgba(244, 114, 182, 0.7)',
+                            borderColor: 'rgba(244, 114, 182, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value.toLocaleString() + ' ฿';
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.parsed.y.toLocaleString() + ' บาท';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        function updateYearlyChart() {
+            // Get unique years from payments
+            const years = [...new Set(payments.map(p => p.date.getFullYear()))].sort();
+            
+            // If no data, use current year
+            if (years.length === 0) {
+                years.push(new Date().getFullYear());
+            }
+            
+            // Calculate yearly totals
+            const yearlyData = years.map(year => {
+                const yearPayments = payments.filter(p => p.date.getFullYear() === year);
+                
+                return {
+                    year: year,
+                    total: yearPayments.reduce((sum, p) => sum + p.amount, 0)
+                };
+            });
+            
+            // Create or update chart
+            const ctx = document.getElementById('yearlyChart').getContext('2d');
+            
+            if (charts.yearly) {
+                charts.yearly.data.labels = yearlyData.map(d => d.year.toString());
+                charts.yearly.data.datasets[0].data = yearlyData.map(d => d.total);
+                charts.yearly.update();
+            } else {
+                charts.yearly = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: yearlyData.map(d => d.year.toString()),
+                        datasets: [{
+                            label: 'ยอดเงินรายปี (บาท)',
+                            data: yearlyData.map(d => d.total),
+                            backgroundColor: 'rgba(129, 140, 248, 0.7)',
+                            borderColor: 'rgba(129, 140, 248, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value.toLocaleString() + ' ฿';
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.parsed.y.toLocaleString() + ' บาท';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        function updateStatistics() {
+            loadStudentStats();
+            updateDailyChart();
+            updateMonthlyChart();
+            updateYearlyChart();
+        }
+        
+        // Utility functions
+        function fetchData(action, params, callback) {
+            // Create a unique callback name
+            const callbackName = 'jsonpCallback_' + Math.round(Math.random() * 10000000);
+            
+            // Create the full URL with parameters
+            let url = `${SCRIPT_URL}?action=${action}&callback=${callbackName}`;
+            
+            // Add other parameters
+            for (const key in params) {
+                if (params.hasOwnProperty(key)) {
+                    url += `&${key}=${encodeURIComponent(params[key])}`;
+                }
+            }
+            
+            // Create script element
+            const script = document.createElement('script');
+            
+            // Define the callback function
+            window[callbackName] = function(data) {
+                // Call the provided callback with the data
+                callback(data);
+                
+                // Clean up
+                document.body.removeChild(script);
+                delete window[callbackName];
+            };
+            
+            // Set script source and append to document
+            script.src = url;
+            document.body.appendChild(script);
+            
+            // Handle errors
+            script.onerror = function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้',
+                    confirmButtonColor: '#a370f7'
+                });
+                
+                // Clean up
+                document.body.removeChild(script);
+                delete window[callbackName];
+            };
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'940112bce398fe1b',t:'MTc0NzI5NTcyOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
