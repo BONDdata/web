@@ -930,7 +930,7 @@
             // Get data for the last 12 months
             const today = new Date();
             const months = [];
-            for (let i = 12; i >= 0; i--) {
+            for (let i = 11; i >= 0; i--) {
                 const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
                 months.push(date);
             }
