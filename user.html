@@ -47,7 +47,7 @@
         <div id="login-section">
             <h2><img src="https://img.icons8.com/ios-filled/50/000000/login-rounded-right.png" alt="Login Icon" style="vertical-align: middle; width: 30px; height: 30px;"/> เข้าสู่ระบบ (ผู้ดูแล)</h2>
         
-            <button onclick="showApp(false)">เข้าสู่โหมดผู้ใช้งานทั่วไป</button>
+            <button onclick="showApp(false)">เข้าสู่โหมดผู้รับฝากเงิน</button>
         </div>
 
         <div id="main-app-section" class="hidden">
@@ -141,7 +141,7 @@
                 logoutButton.classList.remove('hidden');
                 adminControls.classList.remove('hidden');
             } else {
-                userGreeting.textContent = 'โหมด: ผู้ใช้งานทั่วไป';
+                userGreeting.textContent = 'โหมด: ผู้รับฝากเงิน';
                 logoutButton.classList.add('hidden');
                 adminControls.classList.add('hidden');
             }
