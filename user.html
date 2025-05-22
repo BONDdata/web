@@ -3,677 +3,906 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบออมเงินนักเรียน</title>
+    <title>ระบบบันทึกการออมเงินนักเรียน</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Kanit', sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f0f2f5; /* Slightly different background */
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f0f9ff;
         }
-
-        .container {
-            background-color: #ffffff;
-            padding: 25px;
-            border-radius: 10px; /* Slightly more rounded */
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        .card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #3b82f6;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+        .btn-success {
+            background-color: #10b981;
+            transition: all 0.3s ease;
+        }
+        .btn-success:hover {
+            background-color: #059669;
+        }
+        .btn-danger {
+            background-color: #ef4444;
+            transition: all 0.3s ease;
+        }
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+        .btn-secondary {
+            background-color: #6b7280;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
             width: 100%;
-            max-width: 650px; /* Slightly wider for better layout */
-            margin-bottom: 20px;
         }
-
-        .logo-container {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .logo-container img {
-            max-width: 120px; /* Adjusted for OBEC logo aspect ratio */
-            height: auto;
-        }
-
-        h1, h2 {
-            color: #0056b3; /* Adjusted primary color */
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        h1 {
-            font-size: 1.8em;
-        }
-        h2 {
-            font-size: 1.5em;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-            margin-top: 25px;
-        }
-
-
-        label {
-            display: block;
-            margin-top: 15px;
-            margin-bottom: 8px; /* Increased spacing */
-            font-weight: bold;
-            color: #495057; /* Darker label color */
-        }
-
-        input[type="text"],
-        input[type="password"],
-        input[type="date"],
-        input[type="number"],
-        select {
-            width: calc(100% - 24px); /* Adjusted for padding */
-            padding: 12px; /* Increased padding */
-            margin-bottom: 15px; /* Increased spacing */
-            border: 1px solid #ced4da; /* Standard border color */
-            border-radius: 5px; /* Slightly more rounded inputs */
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-        input:focus, select:focus {
-            border-color: #80bdff;
-            outline: 0;
-            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
-        }
-
-
-        button {
-            background-color: #007bff;
+        .tab-active {
+            background-color: #3b82f6;
             color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            margin-top: 15px; /* Increased spacing */
-            transition: background-color 0.2s ease-in-out, transform 0.1s ease;
-            width: 100%; /* Make buttons full width within their container */
-            box-sizing: border-box;
         }
-
-        button:hover {
-            background-color: #0056b3;
-            transform: translateY(-1px); /* Slight lift on hover */
+        .tab {
+            transition: all 0.3s ease;
         }
-        button:active {
-            transform: translateY(0px);
-        }
-
-        .admin-section, .stats-section {
-            margin-top: 30px; /* Increased spacing */
-            padding-top: 20px;
-            border-top: 1px solid #dee2e6; /* Clearer separator */
-        }
-
-        #login-form .button-group {
-            margin-top: 20px;
-        }
-        #login-form .button-group button {
-            margin-bottom:10px;
-        }
-        #login-form .button-group button:last-child {
-            margin-bottom:0;
-        }
-
-
-        .hidden {
-            display: none !important;
-        }
-
-        #student-list {
-            list-style: none;
-            padding: 0;
-        }
-        #student-list li {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px; /* Increased padding */
-            border: 1px solid #eee;
-            margin-bottom: 8px; /* Spacing between items */
-            border-radius: 4px;
-            background-color: #f8f9fa;
-        }
-
-        #student-list button {
-            background-color: #dc3545;
-            padding: 6px 12px; /* Adjusted padding */
-            font-size: 14px;
-            margin-top: 0;
-            width: auto; /* Override full-width for list buttons */
-        }
-         #student-list button:hover {
-            background-color: #c82333;
-        }
-
-        .stats-result {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #e9ecef;
-            border-radius: 5px;
-            border: 1px solid #ced4da;
-            max-height: 300px; /* Limit height and make scrollable if needed */
-            overflow-y: auto;
-        }
-        .stats-result pre {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            font-size: 14px; /* Slightly smaller for pre */
-            color: #212529;
-        }
-        #user-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            background-color: #e9ecef;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        #user-info p {
-            margin:0;
-            font-weight: bold;
-        }
-        #logout-button {
-            width: auto !important; /* Ensure logout button is not full width */
-            padding: 8px 15px !important;
-            font-size: 14px !important;
-            margin-left: 15px !important;
-            margin-top: 0 !important;
-        }
-
-
-        /* Responsive adjustments */
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-            .container {
-                padding: 20px; /* More padding on mobile */
-            }
-             input[type="text"],
-            input[type="password"],
-            input[type="date"],
-            input[type="number"],
-            select {
-                width: calc(100% - 20px);
-                padding: 10px;
-            }
-            button {
-                padding: 12px 18px;
-            }
-            h1 { font-size: 1.6em;}
-            h2 { font-size: 1.3em;}
+        .tab:hover:not(.tab-active) {
+            background-color: #e0e7ff;
         }
     </style>
 </head>
-<body>
-    <div class="logo-container">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Thai_OBEC_emblem.svg/1200px-Thai_OBEC_emblem.svg.png" alt="โลโก้ ออมเงิน สพฐ">
-        <h1>ระบบบันทึกการออมเงินนักเรียน</h1>
+<body class="min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <h1 class="text-3xl font-bold text-blue-800 mb-4 md:mb-0">ระบบบันทึกการออมเงินนักเรียน</h1>
+                <div id="loginSection">
+                    <button id="loginBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition">เข้าสู่ระบบ</button>
+                </div>
+            </div>
+            <div id="adminInfo" class="mt-2 text-green-600 font-medium hidden">
+                คุณกำลังใช้งานในโหมดผู้ดูแลระบบ
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- ส่วนซ้าย: บันทึกการออม และรายการออมเงินประจำวัน -->
+            <div class="lg:col-span-1">
+                <!-- บันทึกการออม -->
+                <div class="bg-white rounded-xl p-6 card">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">บันทึกการออมเงิน</h2>
+                    
+                    <div class="mb-4">
+                        <label for="savingDate" class="block text-gray-700 mb-1">วันที่บันทึก</label>
+                        <input type="date" id="savingDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="studentSelect" class="block text-gray-700 mb-1">ชื่อนักเรียน</label>
+                        <select id="studentSelect" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">-- เลือกนักเรียน --</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="amount" class="block text-gray-700 mb-1">จำนวนเงินฝาก (บาท)</label>
+                        <input type="number" id="amount" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="0.00">
+                    </div>
+                    
+                    <button id="saveBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition">บันทึกการออม</button>
+                </div>
+
+                <!-- รายการออมเงินประจำวัน (ย้ายมาไว้ตรงนี้) -->
+                <div id="dailyDepositsContainer" class="bg-white rounded-xl p-6 mt-6 card">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">รายการออมเงินประจำวัน</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white border">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="py-2 px-4 border-b text-left">ชื่อนักเรียน</th>
+                                    <th class="py-2 px-4 border-b text-right">จำนวนเงิน (บาท)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dailyDepositsData">
+                                <tr>
+                                    <td colspan="2" class="py-4 text-center text-gray-500">ไม่พบข้อมูล</td>
+                                </tr>
+                            </tbody>
+                            <tfoot class="bg-gray-50">
+                                <tr>
+                                    <td class="py-2 px-4 border-t font-medium">รวมทั้งสิ้น</td>
+                                    <td id="dailyTotal" class="py-2 px-4 border-t text-right font-medium">0.00</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- จัดการรายชื่อนักเรียน (Admin only) -->
+                <div id="adminPanel" class="bg-white rounded-xl p-6 mt-6 card hidden">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">จัดการรายชื่อนักเรียน</h2>
+                    
+                    <div class="mb-4">
+                        <label for="newStudent" class="block text-gray-700 mb-1">เพิ่มนักเรียนใหม่</label>
+                        <div class="flex">
+                            <input type="text" id="newStudent" class="flex-1 px-3 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="ชื่อ-นามสกุล">
+                            <button id="addStudentBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-r-lg transition">เพิ่ม</button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="removeStudent" class="block text-gray-700 mb-1">ลบรายชื่อนักเรียน</label>
+                        <div class="flex">
+                            <select id="removeStudent" class="flex-1 px-3 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">-- เลือกนักเรียน --</option>
+                            </select>
+                            <button id="removeStudentBtn" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-r-lg transition">ลบ</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- สถิติการออม -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-xl p-6 card">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">สถิติการออมเงิน</h2>
+                    
+                    <!-- Tabs -->
+                    <div class="flex flex-wrap mb-6 border-b">
+                        <button class="tab tab-active px-4 py-2 rounded-t-lg" data-tab="daily">รายวัน</button>
+                        <button class="tab px-4 py-2 rounded-t-lg" data-tab="monthly">รายเดือน</button>
+                        <button class="tab px-4 py-2 rounded-t-lg" data-tab="yearly">รายปี</button>
+                    </div>
+                    
+                    <!-- Filter Controls -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div id="dateFilterContainer">
+                            <label for="dateFilter" class="block text-gray-700 mb-1">วันที่</label>
+                            <input type="date" id="dateFilter" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <div id="monthFilterContainer" class="hidden">
+                            <label for="monthFilter" class="block text-gray-700 mb-1">เดือน</label>
+                            <select id="monthFilter" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="1">มกราคม</option>
+                                <option value="2">กุมภาพันธ์</option>
+                                <option value="3">มีนาคม</option>
+                                <option value="4">เมษายน</option>
+                                <option value="5">พฤษภาคม</option>
+                                <option value="6">มิถุนายน</option>
+                                <option value="7">กรกฎาคม</option>
+                                <option value="8">สิงหาคม</option>
+                                <option value="9">กันยายน</option>
+                                <option value="10">ตุลาคม</option>
+                                <option value="11">พฤศจิกายน</option>
+                                <option value="12">ธันวาคม</option>
+                            </select>
+                        </div>
+                        
+                        <div id="yearFilterContainer">
+                            <label for="yearFilter" class="block text-gray-700 mb-1">ปี</label>
+                            <select id="yearFilter" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </select>
+                        </div>
+                        
+                        <div class="md:col-span-3">
+                            <button id="generateReportBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition">แสดงรายงาน</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Summary Card -->
+                    <div id="reportSummary" class="mb-6 p-4 bg-blue-50 rounded-lg">
+                        <div class="text-lg font-medium text-blue-800">สรุปข้อมูลการออมเงิน</div>
+                        <div id="summaryContent" class="mt-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-white p-3 rounded-lg shadow">
+                                <div class="text-sm text-gray-500">จำนวนนักเรียนที่ออม</div>
+                                <div id="studentCount" class="text-2xl font-bold text-blue-600">0 คน</div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow">
+                                <div class="text-sm text-gray-500">จำนวนรายการออม</div>
+                                <div id="transactionCount" class="text-2xl font-bold text-green-600">0 รายการ</div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow">
+                                <div class="text-sm text-gray-500">ยอดเงินรวม</div>
+                                <div id="totalAmount" class="text-2xl font-bold text-purple-600">0.00 บาท</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Report Data Table -->
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white border">
+                            <thead class="bg-gray-100">
+                                <tr id="reportTableHeader">
+                                    <th class="py-2 px-4 border-b text-left">วันที่</th>
+                                    <th class="py-2 px-4 border-b text-left">ชื่อนักเรียน</th>
+                                    <th class="py-2 px-4 border-b text-right">จำนวนเงิน (บาท)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportData">
+                                <tr>
+                                    <td colspan="3" class="py-4 text-center text-gray-500">ไม่พบข้อมูล</td>
+                                </tr>
+                            </tbody>
+                            <tfoot class="bg-gray-50">
+                                <tr>
+                                    <td id="reportFooterLabel" colspan="2" class="py-2 px-4 border-t font-medium">รวมทั้งสิ้น</td>
+                                    <td id="reportTotal" class="py-2 px-4 border-t text-right font-medium">0.00</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
     
-        
-    <div class="container" id="login-container">
-        <h2>เข้าสู่ระบบ</h2>
-        <form id="login-form">
-                <button type="button" onclick="showUserMode()" style="background-color: #6c757d;">เข้าสู่โหมดผู้ใช้งานทั่วไป</button>
-            </div>
-        </form>
-    </div>
-
-    <div class="container hidden" id="app-container">
-        <div id="user-info">
-            <p>สถานะ: <span id="user-mode">ผู้ใช้งานทั่วไป</span></p>
-            <button id="logout-button" onclick="logout()" class="hidden" style="background-color: #fd7e14;">ออกจากระบบ</button>
-        </div>
-
-        <div class="admin-section hidden" id="admin-controls">
-            <h2>จัดการรายชื่อนักเรียน</h2>
-            <label for="new-student-name">เพิ่มชื่อนักเรียนใหม่:</label>
-            <input type="text" id="new-student-name" placeholder="ชื่อ-นามสกุลนักเรียน">
-            <button type="button" onclick="addStudent()">เพิ่มนักเรียน</button>
-
-            <h3 style="margin-top:20px; font-size:1.1em;">รายชื่อนักเรียนปัจจุบัน:</h3>
-            <ul id="student-list">
-                </ul>
-        </div>
-
-        <div id="savings-form-section">
-            <h2>บันทึกการออมเงิน</h2>
-            <form id="savings-form">
-                <label for="record-date">วันที่บันทึก:</label>
-                <input type="date" id="record-date" required>
-
-                <label for="student-name-select">ชื่อนักเรียน:</label>
-                <select id="student-name-select" required>
-                    <option value="">--- กรุณาเลือกชื่อนักเรียน ---</option>
-                    </select>
-
-                <label for="amount">ยอดเงินฝาก (บาท):</label>
-                <input type="number" id="amount" placeholder="เช่น 20, 50, 100" min="1" required>
-
-                <button type="button" onclick="saveTransaction()">บันทึกการออม</button>
-            </form>
-        </div>
-
-         <div class="stats-section" id="stats-controls">
-            <h2>สถิติการออมเงิน</h2>
-            <label for="stats-type">ประเภทสถิติ:</label>
-            <select id="stats-type" onchange="toggleStatsOptions()">
-                <option value="individual">รายบุคคล</option>
-                <option value="daily">รายวัน</option>
-                <option value="monthly">รายเดือน</option>
-                <option value="yearly">รายปี</option>
-            </select>
-
-            <div id="stats-options-individual" class="stats-options">
-                <label for="stats-student-name">เลือกนักเรียน (สำหรับสถิติรายบุคคล):</label>
-                <select id="stats-student-name">
-                    <option value="">--- เลือกนักเรียน ---</option>
-                     </select>
-            </div>
-
-            <label for="stats-month">เลือกเดือน (ไม่บังคับ):</label>
-            <select id="stats-month">
-                <option value="">--- ทุกเดือน ---</option>
-                <option value="1">มกราคม</option>
-                <option value="2">กุมภาพันธ์</option>
-                <option value="3">มีนาคม</option>
-                <option value="4">เมษายน</option>
-                <option value="5">พฤษภาคม</option>
-                <option value="6">มิถุนายน</option>
-                <option value="7">กรกฎาคม</option>
-                <option value="8">สิงหาคม</option>
-                <option value="9">กันยายน</option>
-                <option value="10">ตุลาคม</option>
-                <option value="11">พฤศจิกายน</option>
-                <option value="12">ธันวาคม</option>
-            </select>
-
-            <label for="stats-year">เลือกปี (ไม่บังคับ, ป้อนเป็น ค.ศ.):</label>
-            <input type="number" id="stats-year" placeholder="เช่น 2025" min="2000" max="2100">
-
-            <button type="button" onclick="getStats()">แสดงสถิติ</button>
-            <div class="stats-result" id="stats-result-display">
-                <pre>ผลลัพธ์สถิติจะแสดงที่นี่...</pre>
-            </div>
-        </div>
-    </div>
-
 
     <script>
-        // ใช้ URL ของ Apps Script ที่คุณ Deploy ไว้
-        // const SCRIPT_URL = "YOUR_APPS_SCRIPT_WEB_APP_URL"; // <--- แทนที่ด้วย URL จริงของคุณ
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx766ZRphGDJnS2HZhxsqhrsbg9oPIkJqGl6JLeuwn9gULAeuGKbs8LhW_DaDsLBEya7g/exec"; // <--- ใช้ URL ที่คุณให้มา
+        // Global variables
+        const API_URL = 'https://script.google.com/macros/s/AKfycbw4SOR3ihWKVknvayIwtYi8uOWF8-MFiYCJd1a3a3MJH77Vby2_EvHP6lS2zNwH6MM/exec';
+        let isAdmin = false;
+        let students = [];
+        let savingsData = [];
+        let currentTab = 'daily';
 
-        let currentUser = null;
-        let currentMode = "user";
+        // DOM Elements
+        const loginBtn = document.getElementById('loginBtn');
+        const loginModal = document.getElementById('loginModal');
+        const cancelLoginBtn = document.getElementById('cancelLoginBtn');
+        const submitLoginBtn = document.getElementById('submitLoginBtn');
+        const username = document.getElementById('username');
+        const password = document.getElementById('password');
+        const adminInfo = document.getElementById('adminInfo');
+        const adminPanel = document.getElementById('adminPanel');
+        const studentSelect = document.getElementById('studentSelect');
+        const removeStudent = document.getElementById('removeStudent');
+        const savingDate = document.getElementById('savingDate');
+        const amount = document.getElementById('amount');
+        const saveBtn = document.getElementById('saveBtn');
+        const addStudentBtn = document.getElementById('addStudentBtn');
+        const removeStudentBtn = document.getElementById('removeStudentBtn');
+        const newStudent = document.getElementById('newStudent');
+        const dateFilter = document.getElementById('dateFilter');
+        const monthFilter = document.getElementById('monthFilter');
+        const yearFilter = document.getElementById('yearFilter');
+        const generateReportBtn = document.getElementById('generateReportBtn');
+        const reportData = document.getElementById('reportData');
+        const reportTableHeader = document.getElementById('reportTableHeader');
+        const reportFooterLabel = document.getElementById('reportFooterLabel');
+        const reportTotal = document.getElementById('reportTotal');
+        const dailyDepositsData = document.getElementById('dailyDepositsData');
+        const dailyTotal = document.getElementById('dailyTotal');
+        const studentCount = document.getElementById('studentCount');
+        const transactionCount = document.getElementById('transactionCount');
+        const totalAmount = document.getElementById('totalAmount');
+        const tabs = document.querySelectorAll('.tab');
+        const dateFilterContainer = document.getElementById('dateFilterContainer');
+        const monthFilterContainer = document.getElementById('monthFilterContainer');
+        const yearFilterContainer = document.getElementById('yearFilterContainer');
 
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('record-date').valueAsDate = new Date();
-            loadStudents(); // โหลดรายชื่อนักเรียนเมื่อหน้าเว็บพร้อม
-            toggleStatsOptions(); // ตั้งค่าการแสดงผลเริ่มต้นของตัวเลือกสถิติ
+        // Set default date to today
+        const today = new Date();
+        const todayFormatted = formatDateForInput(today);
+        savingDate.value = todayFormatted;
+        dateFilter.value = todayFormatted;
+
+        // Populate year filter with last 5 years
+        const currentYear = today.getFullYear();
+        for (let year = currentYear; year >= currentYear - 4; year--) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearFilter.appendChild(option);
+        }
+        yearFilter.value = currentYear;
+
+        // Set current month
+        monthFilter.value = (today.getMonth() + 1).toString();
+
+        // Event Listeners
+        loginBtn.addEventListener('click', showLoginModal);
+        cancelLoginBtn.addEventListener('click', hideLoginModal);
+        submitLoginBtn.addEventListener('click', handleLogin);
+        saveBtn.addEventListener('click', saveSavingsData);
+        addStudentBtn.addEventListener('click', addStudent);
+        removeStudentBtn.addEventListener('click', removeStudentHandler);
+        generateReportBtn.addEventListener('click', generateReport);
+        
+        // Tab switching
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('tab-active'));
+                tab.classList.add('tab-active');
+                currentTab = tab.dataset.tab;
+                updateFilterVisibility();
+            });
         });
 
+        // Initialize
+        fetchStudents();
+        fetchSavingsData();
+        updateFilterVisibility();
+        fetchDailyDeposits();
 
-        function showLoading(title = 'กำลังประมวลผล...') {
-            Swal.fire({
-                title: title,
-                text: 'กรุณารอสักครู่...',
-                allowOutsideClick: false,
-                didOpen: () => { Swal.showLoading(); }
-            });
-        }
-
-        function hideLoading() { Swal.close(); }
-
-        function showAlert(type, title, text) {
-            Swal.fire({ icon: type, title: title, text: text });
-        }
-
-        function makeJsonpRequest(action, params, callback) {
-            showLoading();
-            const callbackName = 'jsonpCallback_' + Date.now() + '_' + Math.round(Math.random() * 100000);
-            window[callbackName] = function(data) {
-                hideLoading();
-                try {
-                    callback(data);
-                } catch (e) {
-                    console.error("Error in JSONP callback execution:", e);
-                    showAlert('error', 'ข้อผิดพลาดในการตอบกลับ', 'เกิดปัญหาในการประมวลผลข้อมูลที่ได้รับ');
-                } finally {
-                    delete window[callbackName];
-                    if (document.getElementById(scriptId)) {
-                        document.body.removeChild(document.getElementById(scriptId));
-                    }
-                }
-            };
-
+        // JSONP Helper Functions
+        function jsonpRequest(url, callback) {
             const script = document.createElement('script');
-            const scriptId = 'jsonpScript_' + callbackName;
-            script.id = scriptId;
-            let url = `${SCRIPT_URL}?action=${action}&callback=${callbackName}`;
-            if (params) {
-                for (const key in params) {
-                    url += `&${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`;
-                }
-            }
-            script.src = url;
-            script.onerror = function() {
-                hideLoading();
-                showAlert('error', 'การเชื่อมต่อล้มเหลว', 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต หรือ URL ของ Apps Script');
+            const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+            
+            window[callbackName] = function(data) {
                 delete window[callbackName];
-                 if (document.getElementById(scriptId)) {
-                    document.body.removeChild(document.getElementById(scriptId));
-                }
+                document.body.removeChild(script);
+                callback(data);
             };
+            
+            script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + callbackName;
             document.body.appendChild(script);
         }
 
-        function login() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            if (!username || !password) {
-                showAlert('warning', 'ข้อมูลไม่ครบถ้วน', 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน');
-                return;
-            }
-
-            makeJsonpRequest('login', { username, password }, (data) => {
-                if (data.status === 'success' && data.mode === 'admin') {
-                    currentUser = { username, password };
-                    currentMode = 'admin';
-                    document.getElementById('login-container').classList.add('hidden');
-                    document.getElementById('app-container').classList.remove('hidden');
-                    document.getElementById('admin-controls').classList.remove('hidden');
-                    document.getElementById('user-mode').textContent = 'ผู้ดูแลระบบ';
-                    document.getElementById('logout-button').classList.remove('hidden');
-                    showAlert('success', 'เข้าสู่ระบบสำเร็จ', 'ยินดีต้อนรับ, ผู้ดูแลระบบ!');
-                    loadStudents(); // โหลดรายชื่อนักเรียนอีกครั้งสำหรับส่วน admin
-                } else {
-                    showAlert('error', 'เข้าสู่ระบบไม่สำเร็จ', data.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
-                }
-            });
+        // Login Functions
+        function showLoginModal() {
+            loginModal.classList.remove('hidden');
+            username.focus();
         }
 
-        function showUserMode() {
-            currentUser = null;
-            currentMode = 'user';
-            document.getElementById('login-container').classList.add('hidden');
-            document.getElementById('app-container').classList.remove('hidden');
-            document.getElementById('admin-controls').classList.add('hidden');
-            document.getElementById('user-mode').textContent = 'ผู้ใช้งานทั่วไป';
-            document.getElementById('logout-button').classList.add('hidden');
-            // ไม่จำเป็นต้อง loadStudents() อีกครั้งถ้าโหลดไปแล้วตอน DOMContentLoaded
-            // แต่ถ้าต้องการให้แน่ใจว่าข้อมูลล่าสุดเสมอ ก็เรียกได้
-            // loadStudents();
+        function hideLoginModal() {
+            loginModal.classList.add('hidden');
+            username.value = '';
+            password.value = '';
         }
 
-        function logout() {
-            currentUser = null;
-            currentMode = 'user';
-            document.getElementById('login-container').classList.remove('hidden');
-            document.getElementById('app-container').classList.add('hidden');
-            document.getElementById('logout-button').classList.add('hidden');
-            document.getElementById('username').value = "admin"; // Reset for convenience
-            document.getElementById('password').value = "1234";
-        }
-
-        function loadStudents() {
-            makeJsonpRequest('getStudents', null, (data) => {
-                if (data.status === 'success') {
-                    populateStudentDropdowns(data.students);
-                    if (currentMode === 'admin') {
-                        populateAdminStudentList(data.students);
-                    }
-                } else {
-                    showAlert('error', 'ข้อผิดพลาด', 'ไม่สามารถโหลดรายชื่อนักเรียนได้: ' + (data.message || "ไม่ทราบสาเหตุ"));
-                }
-            });
-        }
-
-        function populateStudentDropdowns(students) {
-            const selects = [
-                document.getElementById('student-name-select'),
-                document.getElementById('stats-student-name')
-            ];
-
-            selects.forEach(selectElement => {
-                const currentVal = selectElement.value;
-                if (selectElement.id === 'stats-student-name') {
-                    selectElement.innerHTML = '<option value="">--- ทุกคน (สำหรับภาพรวม) ---</option>';
-                } else {
-                    selectElement.innerHTML = '<option value="">--- กรุณาเลือกชื่อนักเรียน ---</option>';
-                }
-
-                students.forEach(student => {
-                    const option = document.createElement('option');
-                    option.value = student;
-                    option.textContent = student;
-                    selectElement.appendChild(option);
+        function handleLogin() {
+            const user = username.value;
+            const pass = password.value;
+            
+            if (user === 'admin' && pass === '1234') {
+                isAdmin = true;
+                adminInfo.classList.remove('hidden');
+                adminPanel.classList.remove('hidden');
+                loginBtn.textContent = 'ออกจากระบบ';
+                loginBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                loginBtn.classList.add('bg-red-600', 'hover:bg-red-700');
+                loginBtn.removeEventListener('click', showLoginModal);
+                loginBtn.addEventListener('click', handleLogout);
+                hideLoginModal();
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'เข้าสู่ระบบสำเร็จ',
+                    text: 'คุณได้เข้าสู่ระบบในฐานะผู้ดูแลระบบ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#3b82f6'
                 });
-                // Preserve selected value if it still exists
-                if (students.includes(currentVal)) {
-                    selectElement.value = currentVal;
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เข้าสู่ระบบไม่สำเร็จ',
+                    text: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง',
+                    confirmButtonText: 'ลองใหม่',
+                    confirmButtonColor: '#3b82f6'
+                });
+            }
+        }
+
+        function handleLogout() {
+            isAdmin = false;
+            adminInfo.classList.add('hidden');
+            adminPanel.classList.add('hidden');
+            loginBtn.textContent = 'เข้าสู่ระบบ';
+            loginBtn.classList.remove('bg-red-600', 'hover:bg-red-700');
+            loginBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+            loginBtn.removeEventListener('click', handleLogout);
+            loginBtn.addEventListener('click', showLoginModal);
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'ออกจากระบบสำเร็จ',
+                text: 'คุณได้ออกจากระบบผู้ดูแลแล้ว',
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#3b82f6'
+            });
+        }
+
+        // Data Fetching Functions
+        function fetchStudents() {
+            Swal.fire({
+                title: 'กำลังโหลดข้อมูล',
+                text: 'กรุณารอสักครู่...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            jsonpRequest(`${API_URL}?action=getStudents`, function(data) {
+                students = data.students || [];
+                updateStudentSelects();
+                Swal.close();
+            });
+        }
+
+        function fetchSavingsData() {
+            jsonpRequest(`${API_URL}?action=getSavings`, function(data) {
+                savingsData = data.savings || [];
+            });
+        }
+
+        function fetchDailyDeposits() {
+            const today = new Date().toISOString().split('T')[0];
+            
+            jsonpRequest(`${API_URL}?action=getDailyDeposits&date=${today}`, function(data) {
+                if (data.success) {
+                    displayDailyDeposits(data.deposits);
                 }
             });
         }
 
-        function populateAdminStudentList(students) {
-            const listElement = document.getElementById('student-list');
-            listElement.innerHTML = '';
-
-            if (!students || students.length === 0) {
-                listElement.innerHTML = '<li>ยังไม่มีรายชื่อนักเรียนในระบบ</li>';
-                return;
-            }
-
+        function updateStudentSelects() {
+            // Clear existing options
+            studentSelect.innerHTML = '<option value="">-- เลือกนักเรียน --</option>';
+            removeStudent.innerHTML = '<option value="">-- เลือกนักเรียน --</option>';
+            
+            // Add student options
             students.forEach(student => {
-                const listItem = document.createElement('li');
-                const studentNameSpan = document.createElement('span');
-                studentNameSpan.textContent = student;
-                listItem.appendChild(studentNameSpan);
-
-                const removeButton = document.createElement('button');
-                removeButton.textContent = 'ลบ';
-                removeButton.onclick = () => removeStudent(student);
-                listItem.appendChild(removeButton);
-                listElement.appendChild(listItem);
+                const option1 = document.createElement('option');
+                option1.value = student;
+                option1.textContent = student;
+                studentSelect.appendChild(option1);
+                
+                const option2 = document.createElement('option');
+                option2.value = student;
+                option2.textContent = student;
+                removeStudent.appendChild(option2);
             });
         }
 
+        // Student Management Functions
         function addStudent() {
-            if (currentMode !== 'admin' || !currentUser) {
-                showAlert('error', 'ไม่ได้รับอนุญาต', 'เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถเพิ่มนักเรียนได้');
-                return;
-            }
-            const studentNameInput = document.getElementById('new-student-name');
-            const studentName = studentNameInput.value.trim();
+            const studentName = newStudent.value.trim();
+            
             if (!studentName) {
-                showAlert('warning', 'ข้อมูลไม่ครบถ้วน', 'กรุณากรอกชื่อนักเรียนที่ต้องการเพิ่ม');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ข้อมูลไม่ครบถ้วน',
+                    text: 'กรุณากรอกชื่อนักเรียน',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#3b82f6'
+                });
                 return;
             }
-
-            const params = {
-                studentName: studentName,
-                sessionUser: currentUser.username,
-                sessionPass: currentUser.password
-            };
-
-            makeJsonpRequest('addStudent', params, (data) => {
-                if (data.status === 'success') {
-                    showAlert('success', 'สำเร็จ!', data.message || 'เพิ่มนักเรียนเรียบร้อยแล้ว');
-                    studentNameInput.value = '';
-                    if (data.students) {
-                         populateStudentDropdowns(data.students);
-                         populateAdminStudentList(data.students);
-                    } else {
-                        loadStudents(); // Fallback
-                    }
+            
+            if (!isAdmin) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่มีสิทธิ์',
+                    text: 'คุณไม่มีสิทธิ์ในการเพิ่มนักเรียน',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+            
+            Swal.fire({
+                title: 'กำลังบันทึกข้อมูล',
+                text: 'กรุณารอสักครู่...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            jsonpRequest(`${API_URL}?action=addStudent&name=${encodeURIComponent(studentName)}`, function(data) {
+                if (data.success) {
+                    newStudent.value = '';
+                    fetchStudents();
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'เพิ่มนักเรียนสำเร็จ',
+                        text: `เพิ่ม ${studentName} เรียบร้อยแล้ว`,
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#3b82f6'
+                    });
                 } else {
-                    showAlert('error', 'เพิ่มนักเรียนไม่สำเร็จ', data.message || 'ไม่สามารถเพิ่มนักเรียนได้');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เพิ่มนักเรียนไม่สำเร็จ',
+                        text: data.message || 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง',
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#3b82f6'
+                    });
                 }
             });
         }
 
-        function removeStudent(studentName) {
-            if (currentMode !== 'admin' || !currentUser) {
-                showAlert('error', 'ไม่ได้รับอนุญาต', 'เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถลบนักเรียนได้');
+        function removeStudentHandler() {
+            const studentName = removeStudent.value;
+            
+            if (!studentName) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ข้อมูลไม่ครบถ้วน',
+                    text: 'กรุณาเลือกนักเรียนที่ต้องการลบ',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#3b82f6'
+                });
                 return;
             }
-
+            
+            if (!isAdmin) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ไม่มีสิทธิ์',
+                    text: 'คุณไม่มีสิทธิ์ในการลบนักเรียน',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+            
             Swal.fire({
                 title: 'ยืนยันการลบ',
-                text: `คุณต้องการลบนักเรียน "${studentName}" ออกจากระบบใช่หรือไม่?`,
+                text: `คุณต้องการลบ ${studentName} ใช่หรือไม่?`,
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'ใช่, ลบเลย!',
-                cancelButtonText: 'ยกเลิก'
+                confirmButtonText: 'ใช่, ลบเลย',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    const params = {
-                        studentName: studentName,
-                        sessionUser: currentUser.username,
-                        sessionPass: currentUser.password
-                    };
-                    makeJsonpRequest('removeStudent', params, (data) => {
-                        if (data.status === 'success') {
-                            showAlert('success', 'สำเร็จ!', data.message || 'ลบนักเรียนเรียบร้อยแล้ว');
-                             if (data.students) {
-                                populateStudentDropdowns(data.students);
-                                populateAdminStudentList(data.students);
-                            } else {
-                                loadStudents(); // Fallback
-                            }
+                    Swal.fire({
+                        title: 'กำลังลบข้อมูล',
+                        text: 'กรุณารอสักครู่...',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    jsonpRequest(`${API_URL}?action=removeStudent&name=${encodeURIComponent(studentName)}`, function(data) {
+                        if (data.success) {
+                            fetchStudents();
+                            fetchSavingsData();
+                            fetchDailyDeposits();
+                            
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'ลบนักเรียนสำเร็จ',
+                                text: `ลบ ${studentName} เรียบร้อยแล้ว`,
+                                confirmButtonText: 'ตกลง',
+                                confirmButtonColor: '#3b82f6'
+                            });
                         } else {
-                            showAlert('error', 'ลบนักเรียนไม่สำเร็จ', data.message || 'ไม่สามารถลบนักเรียนได้');
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'ลบนักเรียนไม่สำเร็จ',
+                                text: data.message || 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง',
+                                confirmButtonText: 'ตกลง',
+                                confirmButtonColor: '#3b82f6'
+                            });
                         }
                     });
                 }
             });
         }
 
-        function saveTransaction() {
-            const date = document.getElementById('record-date').value;
-            const studentName = document.getElementById('student-name-select').value;
-            const amount = document.getElementById('amount').value;
-
-            if (!date || !studentName || !amount) {
-                showAlert('warning', 'ข้อมูลไม่ครบถ้วน', 'กรุณากรอก วันที่, เลือกชื่อนักเรียน, และระบุยอดเงินฝาก');
+        // Savings Functions
+        function saveSavingsData() {
+            const date = savingDate.value;
+            const student = studentSelect.value;
+            const amountValue = parseFloat(amount.value);
+            
+            if (!date || !student || isNaN(amountValue) || amountValue <= 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ข้อมูลไม่ครบถ้วน',
+                    text: 'กรุณากรอกข้อมูลให้ครบถ้วน',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#3b82f6'
+                });
                 return;
             }
-            if (parseFloat(amount) <= 0) {
-                 showAlert('warning', 'ยอดเงินไม่ถูกต้อง', 'ยอดเงินฝากต้องเป็นจำนวนบวก');
-                return;
-            }
-
-            const params = { date, studentName, amount };
-            makeJsonpRequest('saveTransaction', params, (data) => {
-                if (data.status === 'success') {
-                    showAlert('success', 'บันทึกสำเร็จ!', 'บันทึกข้อมูลการออมเงินเรียบร้อยแล้ว');
-                    document.getElementById('savings-form').reset();
-                    document.getElementById('record-date').valueAsDate = new Date(); // Reset date to today
-                    document.getElementById('student-name-select').value = ""; // Reset dropdown
+            
+            Swal.fire({
+                title: 'กำลังบันทึกข้อมูล',
+                text: 'กรุณารอสักครู่...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            jsonpRequest(`${API_URL}?action=saveSavings&date=${encodeURIComponent(date)}&student=${encodeURIComponent(student)}&amount=${amountValue}`, function(data) {
+                if (data.success) {
+                    amount.value = '';
+                    fetchSavingsData();
+                    fetchDailyDeposits();
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'บันทึกข้อมูลสำเร็จ',
+                        text: `บันทึกการออมเงินของ ${student} จำนวน ${amountValue.toFixed(2)} บาท เรียบร้อยแล้ว`,
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#3b82f6'
+                    });
                 } else {
-                    showAlert('error', 'บันทึกไม่สำเร็จ', data.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'บันทึกข้อมูลไม่สำเร็จ',
+                        text: data.message || 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง',
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#3b82f6'
+                    });
                 }
             });
         }
 
-        function toggleStatsOptions() {
-            const statsType = document.getElementById('stats-type').value;
-            const individualOptions = document.getElementById('stats-options-individual');
-
-            individualOptions.style.display = (statsType === 'individual') ? 'block' : 'none';
+        // Report Functions
+        function updateFilterVisibility() {
+            // Reset visibility
+            dateFilterContainer.style.display = 'block';
+            monthFilterContainer.style.display = 'none';
+            yearFilterContainer.style.display = 'block';
+            
+            // Adjust filters based on report type
+            switch (currentTab) {
+                case 'daily':
+                    // Show date and year filters
+                    break;
+                case 'monthly':
+                    // Show month and year filters
+                    dateFilterContainer.style.display = 'none';
+                    monthFilterContainer.style.display = 'block';
+                    break;
+                case 'yearly':
+                    // Show only year filter
+                    dateFilterContainer.style.display = 'none';
+                    break;
+            }
         }
 
-        function getStats() {
-            const type = document.getElementById('stats-type').value;
-            const studentNameEl = document.getElementById('stats-student-name');
-            let studentName = (type === 'individual' && studentNameEl.value) ? studentNameEl.value : null;
-            if (type === 'individual' && !studentNameEl.value) {
-                showAlert('warning', 'เลือกนักเรียน', 'กรุณาเลือกนักเรียนสำหรับดูสถิติรายบุคคล');
-                return;
+        function generateReport() {
+            let params = `action=getReport&type=${currentTab}`;
+            
+            switch (currentTab) {
+                case 'daily':
+                    params += `&date=${dateFilter.value}&year=${yearFilter.value}`;
+                    break;
+                case 'monthly':
+                    params += `&month=${monthFilter.value}&year=${yearFilter.value}`;
+                    break;
+                case 'yearly':
+                    params += `&year=${yearFilter.value}`;
+                    break;
             }
+            
+            Swal.fire({
+                title: 'กำลังสร้างรายงาน',
+                text: 'กรุณารอสักครู่...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            jsonpRequest(`${API_URL}?${params}`, function(data) {
+                if (data.success) {
+                    displayReport(data.report, currentTab);
+                    updateSummary(data.summary);
+                    Swal.close();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'สร้างรายงานไม่สำเร็จ',
+                        text: data.message || 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง',
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#3b82f6'
+                    });
+                }
+            });
+        }
 
-            const month = document.getElementById('stats-month').value;
-            const year = document.getElementById('stats-year').value;
-            const resultDisplay = document.getElementById('stats-result-display');
+        function displayDailyDeposits(deposits) {
+            dailyDepositsData.innerHTML = '';
+            
+            if (deposits && deposits.length > 0) {
+                let total = 0;
+                
+                deposits.forEach(item => {
+                    const row = document.createElement('tr');
+                    
+                    const studentCell = document.createElement('td');
+                    studentCell.className = 'py-2 px-4 border-b';
+                    studentCell.textContent = item.student;
+                    row.appendChild(studentCell);
+                    
+                    const amountCell = document.createElement('td');
+                    amountCell.className = 'py-2 px-4 border-b text-right';
+                    amountCell.textContent = formatCurrency(item.amount);
+                    row.appendChild(amountCell);
+                    
+                    dailyDepositsData.appendChild(row);
+                    
+                    total += parseFloat(item.amount);
+                });
+                
+                dailyTotal.textContent = formatCurrency(total);
+            } else {
+                const row = document.createElement('tr');
+                const cell = document.createElement('td');
+                cell.colSpan = 2;
+                cell.className = 'py-4 text-center text-gray-500';
+                cell.textContent = 'ไม่พบข้อมูลการออมเงินวันนี้';
+                row.appendChild(cell);
+                dailyDepositsData.appendChild(row);
+                
+                dailyTotal.textContent = '0.00';
+            }
+        }
 
-            const params = { type };
-            if (studentName) params.studentName = studentName;
-            if (month) params.month = month;
-            if (year) params.year = year;
-
-            makeJsonpRequest('getStats', params, (response) => {
-                resultDisplay.innerHTML = '';
-                if (response.status === 'success') {
-                    let htmlOutput = `<pre>`;
-                    if (response.data && ( (Array.isArray(response.data) && response.data.length > 0) || (typeof response.data === 'object' && Object.keys(response.data).length > 0) ) ) {
-                        if (type === "individual") {
-                            if (response.data.monthly && Object.keys(response.data.monthly).length > 0) {
-                                htmlOutput += `สถิติรายบุคคลสำหรับ: ${studentName}\n`;
-                                htmlOutput += `ยอดสะสมแต่ละเดือน:\n`;
-                                const sortedMonths = Object.keys(response.data.monthly).sort();
-                                sortedMonths.forEach(monthYear => {
-                                    htmlOutput += `  - ${monthYear}: ${response.data.monthly[monthYear].toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} บาท\n`;
-                                });
-                                htmlOutput += `\nยอดเงินสะสมทั้งหมด: ${response.data.total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} บาท\n`;
-                            } else {
-                                htmlOutput += `ไม่พบข้อมูลการออมสำหรับ ${studentName}`;
-                                if(month) htmlOutput += ` ในเดือนที่ ${month}`;
-                                if(year) htmlOutput += ` ปี ${year}`;
-                                htmlOutput += `\n`;
-                            }
-                        } else if (type === "daily") {
-                            htmlOutput += `สถิติยอดฝากรายวัน ${year ? 'ปี '+year : ''} ${month ? 'เดือน '+document.getElementById('stats-month').options[document.getElementById('stats-month').selectedIndex].text : ''}:\n`;
-                            if (Object.keys(response.data).length > 0) {
-                                Object.entries(response.data).forEach(([date, total]) => {
-                                    htmlOutput += `  - ${date}: ${total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} บาท\n`;
-                                });
-                            } else {
-                                htmlOutput += `  ไม่พบข้อมูล\n`;
-                            }
-                        } else if (type === "monthly") {
-                            htmlOutput += `สถิติยอดฝากรายเดือน ${year ? 'ปี '+year : ''}:\n`;
-                             if (Object.keys(response.data).length > 0) {
-                                Object.entries(response.data).forEach(([monthYr, total]) => {
-                                    htmlOutput += `  - ${monthYr}: ${total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} บาท\n`;
-                                });
-                            } else {
-                                htmlOutput += `  ไม่พบข้อมูล\n`;
-                            }
-                        } else if (type === "yearly") {
-                            htmlOutput += `สถิติยอดฝากรายปี:\n`;
-                            if (Object.keys(response.data).length > 0) {
-                                Object.entries(response.data).forEach(([yr, total]) => {
-                                    htmlOutput += `  - ปี ${yr}: ${total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} บาท\n`;
-                                });
-                            } else {
-                                htmlOutput += `  ไม่พบข้อมูล\n`;
-                            }
-                        }
-                        htmlOutput += `</pre>`;
-                        resultDisplay.innerHTML = htmlOutput;
-                    } else {
-                        resultDisplay.innerHTML = `<pre>ไม่พบข้อมูลสถิติสำหรับเงื่อนไขที่เลือก.</pre>`;
-                        if (response.message && response.message !== "No savings data found.") showAlert('info', 'ข้อมูล', response.message);
+        function displayReport(report, type) {
+            // Update table header based on report type
+            reportTableHeader.innerHTML = '';
+            let headerRow = document.createElement('tr');
+            
+            switch (type) {
+                case 'daily':
+                    headerRow.innerHTML = `
+                        <th class="py-2 px-4 border-b text-left">ชื่อนักเรียน</th>
+                        <th class="py-2 px-4 border-b text-right">จำนวนเงิน (บาท)</th>
+                    `;
+                    reportFooterLabel.colSpan = 1;
+                    break;
+                case 'monthly':
+                    headerRow.innerHTML = `
+                        <th class="py-2 px-4 border-b text-left">วันที่</th>
+                        <th class="py-2 px-4 border-b text-left">ชื่อนักเรียน</th>
+                        <th class="py-2 px-4 border-b text-right">จำนวนเงิน (บาท)</th>
+                    `;
+                    reportFooterLabel.colSpan = 2;
+                    break;
+                case 'yearly':
+                    headerRow.innerHTML = `
+                        <th class="py-2 px-4 border-b text-left">เดือน</th>
+                        <th class="py-2 px-4 border-b text-left">ชื่อนักเรียน</th>
+                        <th class="py-2 px-4 border-b text-right">จำนวนเงิน (บาท)</th>
+                    `;
+                    reportFooterLabel.colSpan = 2;
+                    break;
+            }
+            
+            reportTableHeader.appendChild(headerRow);
+            
+            // Update table data
+            reportData.innerHTML = '';
+            
+            if (report && report.length > 0) {
+                let total = 0;
+                
+                report.forEach(item => {
+                    const row = document.createElement('tr');
+                    
+                    switch (type) {
+                        case 'daily':
+                            const studentCell = document.createElement('td');
+                            studentCell.className = 'py-2 px-4 border-b';
+                            studentCell.textContent = item.student;
+                            row.appendChild(studentCell);
+                            
+                            const amountCell = document.createElement('td');
+                            amountCell.className = 'py-2 px-4 border-b text-right';
+                            amountCell.textContent = formatCurrency(item.amount);
+                            row.appendChild(amountCell);
+                            break;
+                            
+                        case 'monthly':
+                            const dateCell = document.createElement('td');
+                            dateCell.className = 'py-2 px-4 border-b';
+                            dateCell.textContent = item.date;
+                            row.appendChild(dateCell);
+                            
+                            const studentCellMonthly = document.createElement('td');
+                            studentCellMonthly.className = 'py-2 px-4 border-b';
+                            studentCellMonthly.textContent = item.student;
+                            row.appendChild(studentCellMonthly);
+                            
+                            const amountCellMonthly = document.createElement('td');
+                            amountCellMonthly.className = 'py-2 px-4 border-b text-right';
+                            amountCellMonthly.textContent = formatCurrency(item.amount);
+                            row.appendChild(amountCellMonthly);
+                            break;
+                            
+                        case 'yearly':
+                            const monthCell = document.createElement('td');
+                            monthCell.className = 'py-2 px-4 border-b';
+                            monthCell.textContent = item.month;
+                            row.appendChild(monthCell);
+                            
+                            const studentCellYearly = document.createElement('td');
+                            studentCellYearly.className = 'py-2 px-4 border-b';
+                            studentCellYearly.textContent = item.student;
+                            row.appendChild(studentCellYearly);
+                            
+                            const amountCellYearly = document.createElement('td');
+                            amountCellYearly.className = 'py-2 px-4 border-b text-right';
+                            amountCellYearly.textContent = formatCurrency(item.amount);
+                            row.appendChild(amountCellYearly);
+                            break;
                     }
-                } else {
-                    resultDisplay.innerHTML = `<pre>เกิดข้อผิดพลาด: ${response.message || 'ไม่สามารถดึงข้อมูลสถิติได้'}</pre>`;
-                    showAlert('error', 'ดึงข้อมูลสถิติไม่สำเร็จ', response.message || 'เกิดข้อผิดพลาด');
-                }
-            });
+                    
+                    reportData.appendChild(row);
+                    total += parseFloat(item.amount);
+                });
+                
+                reportTotal.textContent = formatCurrency(total);
+            } else {
+                const row = document.createElement('tr');
+                const cell = document.createElement('td');
+                cell.colSpan = type === 'daily' ? 2 : 3;
+                cell.className = 'py-4 text-center text-gray-500';
+                cell.textContent = 'ไม่พบข้อมูล';
+                row.appendChild(cell);
+                reportData.appendChild(row);
+                
+                reportTotal.textContent = '0.00';
+            }
+        }
+
+        function updateSummary(summary) {
+            if (summary) {
+                studentCount.textContent = `${summary.studentCount} คน`;
+                transactionCount.textContent = `${summary.transactionCount} รายการ`;
+                totalAmount.textContent = `${formatCurrency(summary.totalAmount)} บาท`;
+            } else {
+                studentCount.textContent = '0 คน';
+                transactionCount.textContent = '0 รายการ';
+                totalAmount.textContent = '0.00 บาท';
+            }
+        }
+
+        // Helper Functions
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        function formatDateForInput(date) {
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return `${year}-${month}-${day}`;
+        }
+
+        function formatCurrency(amount) {
+            return parseFloat(amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+        }
+
+        function getThaiMonth(month) {
+            const months = [
+                'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+                'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+            ];
+            return months[month - 1];
         }
     </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'943a7667d6b7fdf2',t:'MTc0Nzg5NzQ5OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
