@@ -5,56 +5,161 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบออมเงินนักเรียน</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Sarabun', sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
-        .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h1, h2 { color: #0056b3; }
-        label { display: block; margin-top: 10px; font-weight: bold; }
-        input[type="text"], input[type="password"], input[type="number"], input[type="date"], select {
-            width: calc(100% - 22px);
-            padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
+        body {
+            font-family: 'Sarabun', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #E8F5E9; /* Very light green background */
+            color: #1B5E20; /* Dark green text */
+            line-height: 1.6;
         }
-        button {
-            background-color: #007bff;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
+        .container {
+            background-color: #FFFFFF; /* White container for content */
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            margin: 20px auto;
+        }
+        h1, h2, h3 {
+            color: #2E7D32; /* Primary green for headings */
+            margin-bottom: 15px;
+        }
+        h1 {
+            border-bottom: 2px solid #A5D6A7; /* Light green underline */
+            padding-bottom: 10px;
+            font-size: 2em;
+        }
+        h2 {
+            font-size: 1.6em;
+        }
+        h3 {
+            font-size: 1.3em;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+            color: #388E3C; /* Slightly lighter green for labels */
+        }
+        input[type="text"],
+        input[type="password"],
+        input[type="number"],
+        input[type="date"],
+        input[type="month"],
+        select {
+            width: calc(100% - 24px);
+            padding: 12px;
+            margin-top: 8px;
+            border: 1px solid #A5D6A7; /* Light green border */
+            border-radius: 6px;
+            box-sizing: border-box;
+            background-color: #F1F8E9; /* Very light green input background */
+            color: #1B5E20;
             font-size: 16px;
         }
-        button:hover { background-color: #0056b3; }
-        .admin-section { background-color: #e9ecef; padding: 15px; border-radius: 5px; margin-top: 20px; border: 1px solid #ced4da; }
-        .admin-section h3 { margin-top: 0; }
-        .hidden { display: none; }
-        #login-section, #main-app-section { margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f0f0f0; }
-        .total-row td { font-weight: bold; background-color: #e6f7ff; }
+        input:focus, select:focus {
+            border-color: #4CAF50; /* Main green border on focus */
+            outline: none;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+        }
+        button {
+            background-color: #4CAF50; /* Main green for buttons */
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button:hover {
+            background-color: #388E3C; /* Darker green on hover */
+        }
+        .admin-section {
+            background-color: #DCEDC8; /* Lighter green for admin section */
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 25px;
+            border: 1px solid #B2DFDB; /* Subtly different green border */
+        }
+        .admin-section h3 {
+            margin-top: 0;
+            color: #1B5E20;
+        }
+        .hidden {
+            display: none;
+        }
+        #login-section, #main-app-section {
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        th, td {
+            border: 1px solid #C8E6C9; /* Light green table borders */
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #A5D6A7; /* Medium light green for table headers */
+            color: #1B5E20;
+            font-weight: bold;
+        }
+        td {
+            background-color: #F1F8E9; /* Very light green for table cells */
+        }
+        tr:nth-child(even) td {
+            background-color: #E8F5E9; /* Slightly different for even rows */
+        }
+        .total-row td {
+            font-weight: bold;
+            background-color: #C8E6C9 !important; /* Emphasized green for total row */
+            color: #1B5E20;
+        }
+        #logout-button, button[style*="background-color: #dc3545"], button[style*="background-color: #c82333"] {
+            background-color: #757575; /* Grey for logout/delete for distinction */
+        }
+        #logout-button:hover, button[style*="background-color: #dc3545"]:hover, button[style*="background-color: #c82333"]:hover {
+            background-color: #545454; /* Darker grey for hover */
+        }
+        img.icon {
+            vertical-align: middle;
+            width: 24px; /* Adjusted icon size for better fit */
+            height: 24px;
+            margin-right: 8px; /* Space between icon and text */
+        }
+        /* Specific adjustments for icon alignment in headings */
+        h2 img.icon, h3 img.icon {
+            width: 28px;
+            height: 28px;
+        }
+
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>ระบบบันทึกการออมเงินนักเรียน</h1>
+        <h1><img src="https://img.icons8.com/fluency-systems-filled/48/2E7D32/leaf.png" alt="Leaf Icon" class="icon" style="width:32px; height:32px;"/> ระบบบันทึกการออมเงินนักเรียน</h1>
 
         <div id="login-section">
-            <h2><img src="https://img.icons8.com/ios-filled/50/000000/login-rounded-right.png" alt="Login Icon" style="vertical-align: middle; width: 30px; height: 30px;"/> เข้าสู่ระบบ(รับฝากเงิน)</h2>
-        
-            <button onclick="showApp(false)">เข้าสู่โหมดผู้รับฝากเงิน</button>
+            <h2><img src="https://img.icons8.com/material-rounded/48/2E7D32/login-rounded-right.png" alt="Login Icon" class="icon"/> เข้าสู่ระบบ (ฝากเงิน)</h2>
+            
+            <button onclick="showApp(false)" style="background-color: #66BB6A;"><img src="https://img.icons8.com/material-rounded/24/FFFFFF/user.png" alt="User Icon" class="icon" style="width:18px; height:18px;"/> เข้าสู่โหมดผู้รับฝากเงิน</button>
         </div>
 
         <div id="main-app-section" class="hidden">
-            <div id="user-greeting"></div>
-            <button id="logout-button" class="hidden" onclick="logout()" style="background-color: #dc3545;">ออกจากระบบ (ผู้ดูแล)</button>
+            <div id="user-greeting" style="font-size: 1.1em; margin-bottom: 10px; color: #2E7D32; font-weight: bold;"></div>
+            <button id="logout-button" class="hidden" onclick="logout()"><img src="https://img.icons8.com/material-rounded/24/FFFFFF/logout-rounded-left.png" alt="Logout Icon" class="icon" style="width:18px; height:18px;"/> ออกจากระบบ (ผู้ดูแล)</button>
 
-            <h2><img src="https://img.icons8.com/ios-filled/50/000000/save-as.png" alt="Save Icon" style="vertical-align: middle; width: 30px; height: 30px;"/> บันทึกการออมเงิน</h2>
+            <h2><img src="https://img.icons8.com/material-sharp/48/2E7D32/save.png" alt="Save Icon" class="icon"/> บันทึกการออมเงิน</h2>
             <label for="record-date">วันที่บันทึก:</label>
             <input type="date" id="record-date">
 
@@ -64,40 +169,44 @@
             <label for="deposit-amount">ยอดเงินฝาก (บาท):</label>
             <input type="number" id="deposit-amount" min="0" step="any">
 
-            <button onclick="saveDeposit()"><img src="https://img.icons8.com/ios-filled/50/000000/coins.png" alt="Coins Icon" style="vertical-align: middle; width: 20px; height: 20px;"/> บันทึกยอดฝาก</button>
+            <button onclick="saveDeposit()"><img src="https://img.icons8.com/ios-filled/50/FFFFFF/coins.png" alt="Coins Icon" class="icon" style="width:20px; height:20px;"/> บันทึกยอดฝาก</button>
 
             <div id="admin-controls" class="admin-section hidden">
-                <h3><img src="https://img.icons8.com/ios-filled/50/000000/admin-settings-male.png" alt="Admin Icon" style="vertical-align: middle; width: 25px; height: 25px;"/> ส่วนผู้ดูแลระบบ</h3>
+                <h3><img src="https://img.icons8.com/material-sharp/48/1B5E20/settings.png" alt="Admin Icon" class="icon"/> ส่วนผู้ดูแลระบบ</h3>
                 <label for="new-student-name">เพิ่มชื่อนักเรียนใหม่:</label>
                 <input type="text" id="new-student-name">
-                <button onclick="addStudent()">เพิ่มนักเรียน</button>
+                <button onclick="addStudent()"><img src="https://img.icons8.com/material-rounded/24/FFFFFF/add-user-male.png" alt="Add User Icon" class="icon" style="width:18px; height:18px;"/> เพิ่มนักเรียน</button>
                 <br><br>
                 <label for="delete-student-name">ลบชื่อนักเรียน:</label>
                 <select id="delete-student-name-select"></select>
-                <button onclick="deleteStudent()" style="background-color: #c82333;">ลบนักเรียน</button>
+                <button onclick="deleteStudent()" style="background-color: #757575;"><img src="https://img.icons8.com/material-rounded/24/FFFFFF/delete-user-male.png" alt="Delete User Icon" class="icon" style="width:18px; height:18px;"/> ลบนักเรียน</button>
             </div>
 
-            <h2><img src="https://img.icons8.com/ios-filled/50/000000/today.png" alt="Today Icon" style="vertical-align: middle; width: 30px; height: 30px;"/> สรุปยอดฝากประจำวัน</h2>
+            <h2><img src="https://img.icons8.com/material-rounded/48/2E7D32/today.png" alt="Today Icon" class="icon"/> สรุปยอดฝากประจำวัน</h2>
             <label for="summary-date">เลือกวันที่ดูสรุป:</label>
             <input type="date" id="summary-date">
-            <button onclick="loadDailySummary()">แสดงสรุป</button>
+            <button onclick="loadDailySummary()"><img src="https://img.icons8.com/material-rounded/24/FFFFFF/bar-chart.png" alt="Chart Icon" class="icon" style="width:18px; height:18px;"/> แสดงสรุป</button>
             <div id="daily-summary-table"></div>
 
-            <h2><img src="https://img.icons8.com/ios-filled/50/000000/combo-chart.png" alt="Chart Icon" style="vertical-align: middle; width: 30px; height: 30px;"/> สถิติการฝากเงิน</h2>
+            <h2><img src="https://img.icons8.com/material-sharp/48/2E7D32/combo-chart.png" alt="Stats Icon" class="icon"/> สถิติการฝากเงิน</h2>
             <label for="stats-month">เลือกเดือน (YYYY-MM):</label>
             <input type="month" id="stats-month">
-            <button onclick="loadMonthlyIndividualStats()">แสดงสถิติรายบุคคล (ประจำเดือน)</button>
+            <button onclick="loadMonthlyIndividualStats()"><img src="https://img.icons8.com/material-rounded/24/FFFFFF/user-male-circle.png" alt="User Stats Icon" class="icon" style="width:18px; height:18px;"/> สถิติรายบุคคล (ประจำเดือน)</button>
             <div id="individual-monthly-stats-table"></div>
             <br>
-            <button onclick="loadOverallStats('daily')">สถิติรวม (รายวัน)</button>
-            <button onclick="loadOverallStats('monthly')">สถิติรวม (รายเดือน)</button>
-            <button onclick="loadOverallStats('yearly')">สถิติรวม (รายปี)</button>
+            <div style="margin-top: 15px;">
+                <button onclick="loadOverallStats('daily')"><img src="https://img.icons8.com/material-rounded/24/FFFFFF/calendar-day.png" alt="Daily Icon" class="icon" style="width:18px; height:18px;"/> สถิติรวม (รายวัน)</button>
+                <button onclick="loadOverallStats('monthly')"><img src="https://img.icons8.com/material-rounded/24/FFFFFF/calendar-month.png" alt="Monthly Icon" class="icon" style="width:18px; height:18px;"/> สถิติรวม (รายเดือน)</button>
+                <button onclick="loadOverallStats('yearly')"><img src="https://img.icons8.com/material-rounded/24/FFFFFF/calendar-year.png" alt="Yearly Icon" class="icon" style="width:18px; height:18px;"/> สถิติรวม (รายปี)</button>
+            </div>
             <div id="overall-stats-table"></div>
         </div>
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx766ZRphGDJnS2HZhxsqhrsbg9oPIkJqGl6JLeuwn9gULAeuGKbs8LhW_DaDsLBEya7g/exec";
+        // JavaScript code from the previous response remains the same.
+        // Paste the JavaScript code here.
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx766ZRphGDJnS2HZhxsqhrsbg9oPIkJqGl6JLeuwn9gULAeuGKbs8LhW_DaDsLBEya7g/exec"; // Or your new script URL
         let isAdmin = false;
 
         // Initialize
@@ -107,7 +216,6 @@
             document.getElementById('summary-date').value = today;
             const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
             document.getElementById('stats-month').value = currentMonth;
-            // Try to get students on load for user mode
             fetchStudents();
         };
 
@@ -117,16 +225,31 @@
             if (user === 'admin' && pass === '1234') {
                 isAdmin = true;
                 showApp(true);
-                Swal.fire('สำเร็จ!', 'เข้าสู่ระบบผู้ดูแลเรียบร้อย!', 'success');
+                Swal.fire({
+                    title: 'สำเร็จ!',
+                    text: 'เข้าสู่ระบบผู้ดูแลเรียบร้อย!',
+                    icon: 'success',
+                    confirmButtonColor: '#4CAF50'
+                });
             } else {
-                Swal.fire('ผิดพลาด!', 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 'error');
+                Swal.fire({
+                    title: 'ผิดพลาด!',
+                    text: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง',
+                    icon: 'error',
+                    confirmButtonColor: '#4CAF50'
+                });
             }
         }
 
         function logout() {
             isAdmin = false;
-            showApp(false); // Revert to user mode
-            Swal.fire('สำเร็จ!', 'ออกจากระบบผู้ดูแลแล้ว', 'info');
+            showApp(false); 
+            Swal.fire({
+                title: 'สำเร็จ!',
+                text: 'ออกจากระบบผู้ดูแลแล้ว',
+                icon: 'info',
+                confirmButtonColor: '#4CAF50'
+            });
         }
 
         function showApp(asAdmin) {
@@ -137,15 +260,15 @@
             const adminControls = document.getElementById('admin-controls');
 
             if (asAdmin) {
-                userGreeting.textContent = 'โหมด: ผู้ดูแลระบบ';
+                userGreeting.innerHTML = '<img src="https://img.icons8.com/material-sharp/24/2E7D32/verified-account.png" alt="Admin Mode" class="icon" style="width:20px; height:20px;"/> โหมด: ผู้ดูแลระบบ';
                 logoutButton.classList.remove('hidden');
                 adminControls.classList.remove('hidden');
             } else {
-                userGreeting.textContent = 'โหมด: ผู้รับฝากเงิน';
+                userGreeting.innerHTML = '<img src="https://img.icons8.com/material-rounded/24/2E7D32/user.png" alt="User Mode" class="icon" style="width:20px; height:20px;"/> โหมด: ผู้รับฝากเงิน';
                 logoutButton.classList.add('hidden');
                 adminControls.classList.add('hidden');
             }
-            fetchStudents(); // Fetch students again to ensure list is up-to-date
+            fetchStudents();
         }
 
         function sendRequest(action, data, callbackName) {
@@ -155,7 +278,8 @@
                 allowOutsideClick: false,
                 didOpen: () => {
                     Swal.showLoading();
-                }
+                },
+                // confirmButtonColor: '#4CAF50' // Optional: style SweetAlert button
             });
 
             let url = `${SCRIPT_URL}?action=${action}`;
@@ -164,53 +288,67 @@
                     url += `&${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`;
                 }
             }
-            // Add callback parameter for JSONP
             url += `&callback=${callbackName}`;
 
-            // Create script element for JSONP
             const script = document.createElement('script');
             script.src = url;
-            document.body.appendChild(script); // Add to body to execute
-            document.body.removeChild(script); // Clean up immediately (Google Script will still run)
+            script.onerror = function() { // Handle script loading errors (e.g., network issue, CORS if not JSONP)
+                Swal.fire('การเชื่อมต่อล้มเหลว!', 'ไม่สามารถส่งคำร้องขอไปยังเซิร์ฟเวอร์ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต หรือ URL ของ Script', 'error');
+                 // Attempt to remove the script if it failed to load
+                if (script.parentNode) {
+                    script.parentNode.removeChild(script);
+                }
+            };
+            document.body.appendChild(script);
+            // Consider removing the script tag after a timeout or in the callback to keep the DOM clean
+            // For example, in the callback: document.body.removeChild(script); (but ensure it exists)
+             // Clean up the script tag after it has been processed or if there's an error
+            setTimeout(() => {
+                if (script.parentNode) {
+                    script.parentNode.removeChild(script);
+                }
+            }, 5000); // Adjust timeout as needed
+
         }
 
-        // Define global callback functions that Google Apps Script will call
         window.handleSaveResponse = function(response) {
             if (response.success) {
-                Swal.fire('สำเร็จ!', response.message, 'success');
-                document.getElementById('deposit-amount').value = ''; // Clear amount
-                loadDailySummary(); // Refresh daily summary
+                Swal.fire({title:'สำเร็จ!', text: response.message, icon: 'success', confirmButtonColor: '#4CAF50'});
+                document.getElementById('deposit-amount').value = '';
+                if (document.getElementById('summary-date').value === document.getElementById('record-date').value) {
+                    loadDailySummary();
+                }
             } else {
-                Swal.fire('ผิดพลาด!', response.message || 'เกิดข้อผิดพลาดในการบันทึก', 'error');
+                Swal.fire({title: 'ผิดพลาด!', text: response.message || 'เกิดข้อผิดพลาดในการบันทึก', icon: 'error', confirmButtonColor: '#4CAF50'});
             }
         };
 
         window.handleAddStudentResponse = function(response) {
             if (response.success) {
-                Swal.fire('สำเร็จ!', response.message, 'success');
+                Swal.fire({title: 'สำเร็จ!', text: response.message, icon: 'success', confirmButtonColor: '#4CAF50'});
                 document.getElementById('new-student-name').value = '';
-                fetchStudents(); // Refresh student lists
+                fetchStudents();
             } else {
-                Swal.fire('ผิดพลาด!', response.message || 'เกิดข้อผิดพลาดในการเพิ่มนักเรียน', 'error');
+                Swال.fire({title: 'ผิดพลาด!', text: response.message || 'เกิดข้อผิดพลาดในการเพิ่มนักเรียน', icon: 'error', confirmButtonColor: '#4CAF50'});
             }
         };
 
         window.handleDeleteStudentResponse = function(response) {
             if (response.success) {
-                Swal.fire('สำเร็จ!', response.message, 'success');
-                fetchStudents(); // Refresh student lists
+                Swal.fire({title: 'สำเร็จ!', text: response.message, icon: 'success', confirmButtonColor: '#4CAF50'});
+                fetchStudents();
             } else {
-                Swal.fire('ผิดพลาด!', response.message || 'เกิดข้อผิดพลาดในการลบนักเรียน', 'error');
+                Swal.fire({title: 'ผิดพลาด!', text: response.message || 'เกิดข้อผิดพลาดในการลบนักเรียน', icon: 'error', confirmButtonColor: '#4CAF50'});
             }
         };
 
         window.handleFetchStudentsResponse = function(response) {
-            Swal.close(); // Close loading if any
+            Swal.close();
             if (response.success) {
                 const studentSelect = document.getElementById('student-name');
                 const deleteStudentSelect = document.getElementById('delete-student-name-select');
-                studentSelect.innerHTML = '<option value="">-- เลือกนักเรียน --</option>'; // Default option
-                deleteStudentSelect.innerHTML = '<option value="">-- เลือกนักเรียนที่จะลบ --</option>'; // Default option
+                studentSelect.innerHTML = '<option value="">-- เลือกนักเรียน --</option>';
+                deleteStudentSelect.innerHTML = '<option value="">-- เลือกนักเรียนที่จะลบ --</option>';
 
                 response.data.forEach(student => {
                     const option = document.createElement('option');
@@ -220,7 +358,7 @@
                     deleteStudentSelect.appendChild(option);
                 });
             } else {
-                Swal.fire('ผิดพลาด!', response.message || 'ไม่สามารถโหลดรายชื่อนักเรียน', 'error');
+                Swal.fire({title: 'ผิดพลาด!', text: response.message || 'ไม่สามารถโหลดรายชื่อนักเรียน', icon: 'error', confirmButtonColor: '#4CAF50'});
             }
         };
 
@@ -236,9 +374,9 @@
                         total += item.amount;
                     });
                 } else {
-                    html += '<tr><td colspan="2">ไม่พบข้อมูลการฝากสำหรับวันนี้</td></tr>';
+                    html += '<tr><td colspan="2" style="text-align:center;">ไม่พบข้อมูลการฝากสำหรับวันนี้</td></tr>';
                 }
-                html += `<tr class="total-row"><td ><strong>ยอดรวมประจำวัน:</strong></td><td><strong>${total.toFixed(2)}</strong></td></tr>`;
+                html += `<tr class="total-row"><td><strong>ยอดรวมประจำวัน:</strong></td><td><strong>${total.toFixed(2)}</strong></td></tr>`;
                 html += '</tbody></table>';
                 tableDiv.innerHTML = html;
             } else {
@@ -252,11 +390,12 @@
              if (response.success) {
                 let html = '<h3>สถิติการฝากเงินรายบุคคล (ประจำเดือน)</h3><table><thead><tr><th>ชื่อนักเรียน</th><th>ยอดเงินฝากรวม (บาท)</th></tr></thead><tbody>';
                 if (response.data && Object.keys(response.data).length > 0) {
-                    for (const student in response.data) {
-                        html += `<tr><td>${student}</td><td>${response.data[student].toFixed(2)}</td></tr>`;
-                    }
+                    const sortedStudents = Object.keys(response.data).sort();
+                    sortedStudents.forEach(student => {
+                         html += `<tr><td>${student}</td><td>${response.data[student].toFixed(2)}</td></tr>`;
+                    });
                 } else {
-                    html += '<tr><td colspan="2">ไม่พบข้อมูลสถิติสำหรับเดือนนี้</td></tr>';
+                    html += '<tr><td colspan="2" style="text-align:center;">ไม่พบข้อมูลสถิติสำหรับเดือนนี้</td></tr>';
                 }
                 html += '</tbody></table>';
                 tableDiv.innerHTML = html;
@@ -281,7 +420,7 @@
                         html += `<tr><td>${item.period}</td><td>${item.name}</td><td>${item.amount.toFixed(2)}</td></tr>`;
                     });
                 } else {
-                    html += `<tr><td colspan="3">ไม่พบข้อมูลสถิติ</td></tr>`;
+                    html += '<tr><td colspan="3" style="text-align:center;">ไม่พบข้อมูลสถิติ</td></tr>';
                 }
                 html += '</tbody></table>';
                 tableDiv.innerHTML = html;
@@ -290,14 +429,13 @@
             }
         };
 
-
         function saveDeposit() {
             const date = document.getElementById('record-date').value;
             const studentName = document.getElementById('student-name').value;
             const amount = parseFloat(document.getElementById('deposit-amount').value);
 
             if (!date || !studentName || isNaN(amount) || amount <= 0) {
-                Swal.fire('ข้อมูลไม่ครบถ้วน!', 'กรุณากรอกข้อมูลให้ถูกต้อง: วันที่, ชื่อนักเรียน, และยอดเงินฝากต้องมากกว่า 0', 'warning');
+                Swal.fire({title: 'ข้อมูลไม่ครบถ้วน!', text: 'กรุณากรอกข้อมูลให้ถูกต้อง: วันที่, ชื่อนักเรียน, และยอดเงินฝากต้องมากกว่า 0', icon: 'warning', confirmButtonColor: '#4CAF50'});
                 return;
             }
             const data = { date: date, studentName: studentName, amount: amount };
@@ -308,7 +446,7 @@
             if (!isAdmin) return;
             const newStudentName = document.getElementById('new-student-name').value.trim();
             if (!newStudentName) {
-                Swal.fire('ข้อมูลไม่ครบถ้วน!', 'กรุณากรอกชื่อนักเรียนใหม่', 'warning');
+                Swal.fire({title: 'ข้อมูลไม่ครบถ้วน!', text: 'กรุณากรอกชื่อนักเรียนใหม่', icon: 'warning', confirmButtonColor: '#4CAF50'});
                 return;
             }
             sendRequest('addStudent', { studentName: newStudentName }, 'handleAddStudentResponse');
@@ -318,7 +456,7 @@
             if (!isAdmin) return;
             const studentToDelete = document.getElementById('delete-student-name-select').value;
             if (!studentToDelete) {
-                Swal.fire('ข้อมูลไม่ครบถ้วน!', 'กรุณาเลือกนักเรียนที่จะลบ', 'warning');
+                Swal.fire({title: 'ข้อมูลไม่ครบถ้วน!', text: 'กรุณาเลือกนักเรียนที่จะลบ', icon: 'warning', confirmButtonColor: '#4CAF50'});
                 return;
             }
             Swal.fire({
@@ -326,8 +464,8 @@
                 text: `คุณต้องการลบนักเรียน "${studentToDelete}" ใช่หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้`,
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
+                confirmButtonColor: '#757575', // Grey for confirm delete
+                cancelButtonColor: '#4CAF50', // Green for cancel
                 confirmButtonText: 'ใช่, ลบเลย!',
                 cancelButtonText: 'ยกเลิก'
             }).then((result) => {
@@ -344,25 +482,24 @@
         function loadDailySummary() {
             const summaryDate = document.getElementById('summary-date').value;
             if (!summaryDate) {
-                Swal.fire('ข้อมูลไม่ครบถ้วน!', 'กรุณาเลือกวันที่สำหรับดูสรุป', 'warning');
+                Swal.fire({title: 'ข้อมูลไม่ครบถ้วน!', text: 'กรุณาเลือกวันที่สำหรับดูสรุป', icon: 'warning', confirmButtonColor: '#4CAF50'});
                 return;
             }
             sendRequest('getDailySummary', { date: summaryDate }, 'handleDailySummaryResponse');
         }
 
         function loadMonthlyIndividualStats() {
-            const statsMonth = document.getElementById('stats-month').value; // YYYY-MM
+            const statsMonth = document.getElementById('stats-month').value;
             if (!statsMonth) {
-                Swal.fire('ข้อมูลไม่ครบถ้วน!', 'กรุณาเลือกเดือนสำหรับดูสถิติ', 'warning');
+                Swal.fire({title: 'ข้อมูลไม่ครบถ้วน!', text: 'กรุณาเลือกเดือนสำหรับดูสถิติ', icon: 'warning', confirmButtonColor: '#4CAF50'});
                 return;
             }
             sendRequest('getIndividualMonthlyStats', { monthYear: statsMonth }, 'handleIndividualMonthlyStatsResponse');
         }
 
-        function loadOverallStats(period) { // period can be 'daily', 'monthly', 'yearly'
+        function loadOverallStats(period) {
             sendRequest('getOverallStats', { period: period }, 'handleOverallStatsResponse');
         }
-
     </script>
 </body>
 </html>
