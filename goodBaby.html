@@ -85,11 +85,11 @@
         }
 
 
-        #logoutButton {
-            background-color: #DC143C; /* Crimson - For logout */
+        #logoutButton, button.admin-logout { /* Target both potential logout buttons */
+            background-color: #DC143C !important; /* Crimson - For logout */
         }
-        #logoutButton:hover {
-            background-color: #FF6347; /* Tomato */
+        #logoutButton:hover, button.admin-logout:hover {
+            background-color: #FF6347 !important; /* Tomato */
         }
 
 
@@ -156,6 +156,7 @@
             color: #8A2BE2; /* Blue Violet */
             margin-bottom: 10px;
         }
+
     </style>
 </head>
 <body>
@@ -191,11 +192,11 @@
         <label for="studentSelect">เลือกชื่อนักเรียน:</label>
         <select id="studentSelect"></select>
 
-        <label for="goodDeedScore">คะแนนรวมปัจจุบัน (ปรับค่าด้านล่าง):</label>
+        <label>คะแนนรวมปัจจุบัน (ปรับค่าด้านล่าง):</label>
         <div class="score-controls">
-            <button onclick="decreaseScore()">ลด</button>
+            <button onclick="decreaseScore()">-5</button>
             <span id="currentScoreDisplay">0</span>
-            <button onclick="increaseScore()">เพิ่ม</button>
+            <button onclick="increaseScore()">+5</button>
         </div>
         <button onclick="handleSaveDeed()">💾 บันทึกการเปลี่ยนแปลงคะแนน</button>
 
@@ -225,7 +226,7 @@
                 <option value="12">ธันวาคม</option>
             </select>
             <label for="statsYear">เลือกปี:</label>
-            <input type="number" id="statsYear" min="2020" max="2099" value="2025"> <button onclick="fetchMonthlyStats()">แสดงสถิติรายเดือน</button>
+            <input type="number" id="statsYear" min="2020" max="2099" value=""> <button onclick="fetchMonthlyStats()">แสดงสถิติรายเดือน</button>
             <div id="monthlyStatsOutput">
                 <p>โปรดเลือกเดือนและปีกดปุ่มเพื่อดูข้อมูล</p>
             </div>
@@ -234,17 +235,17 @@
 
     <script>
         let isAdmin = false;
-        let currentScoreOnForm = 0; // คะแนนที่แสดงและแก้ไขบนฟอร์ม (เป็นคะแนนรวมใหม่ที่คาดหวัง)
-        let studentBaseScore = 0;   // คะแนนรวมเดิมของนักเรียนที่เลือก ก่อนการแก้ไขบนฟอร์ม
+        let currentScoreOnForm = 0;
+        let studentBaseScore = 0;
         let studentsList = [];
+        // !!! IMPORTANT: This URL must be your deployed Google Apps Script Web App URL !!!
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbxM_03clQopSrztoU5GRPOIodoIoqPhOnoNtTPQQysJyS4MQxEH-WAngu7u-XwNCZFxyQ/exec';
 
-        // DOM Elements (เหมือนเดิม)
         const loginSection = document.getElementById('loginSection');
         const mainAppSection = document.getElementById('mainAppSection');
         const adminControlsSection = document.getElementById('adminControlsSection');
         const adminStatusDiv = document.getElementById('adminStatus');
-        const logoutButton = document.getElementById('logoutButton');
+        let logoutButton = document.getElementById('logoutButton'); // Make it updatable
         const recordDateInput = document.getElementById('recordDate');
         const studentSelect = document.getElementById('studentSelect');
         const deleteStudentSelect = document.getElementById('deleteStudentSelect');
@@ -255,7 +256,6 @@
         const statsMonthInput = document.getElementById('statsMonth');
         const statsYearInput = document.getElementById('statsYear');
 
-        // --- JSONP Helper (เหมือนเดิม) ---
         let scriptTagIdCounter = 0;
         function jsonpRequest(params, callbackName) {
             const scriptId = `jsonp-script-${scriptTagIdCounter++}`;
@@ -269,12 +269,13 @@
             script.onerror = () => {
                 Swal.fire('ข้อผิดพลาด!', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ (JSONP Error)', 'error');
                 document.getElementById(scriptId)?.remove();
-                // Manually call the callback with an error object if it exists, so pending Swals can be closed
                 if(window[callbackName]) {
                     window[callbackName]({status: 'error', message: 'JSONP Script load error'});
+                    delete window[callbackName]; 
                 }
             };
             document.body.appendChild(script);
+            // Callback function itself should call cleanupJsonpScript(script.id)
         }
         
         function cleanupJsonpScript(scriptId) {
@@ -284,7 +285,6 @@
             }
         }
 
-        // --- Login/Logout (เหมือนเดิม) ---
         function handleLogin() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
@@ -293,18 +293,18 @@
                 loginSection.classList.add('hidden');
                 mainAppSection.classList.remove('hidden');
                 adminControlsSection.classList.remove('hidden');
-                logoutButton.classList.remove('hidden');
-                adminStatusDiv.innerHTML = 'สถานะ: ผู้ดูแลระบบ <button id="logoutButton" class="hidden admin-logout" onclick="handleLogout()">ออกจากระบบ</button>';
-                // Re-attach logout button to the new element
-                document.getElementById('logoutButton').classList.remove('hidden');
+                adminStatusDiv.innerHTML = 'สถานะ: ผู้ดูแลระบบ <button class="admin-logout" id="logoutButtonDynamic" onclick="handleLogout()">ออกจากระบบ</button>';
+                logoutButton = document.getElementById('logoutButtonDynamic'); // Re-assign to the new button
+                if(logoutButton) logoutButton.classList.remove('hidden');
                 Swal.fire('สำเร็จ!', 'เข้าสู่ระบบในโหมดผู้ดูแลระบบเรียบร้อย', 'success');
             } else {
                 isAdmin = false;
                 loginSection.classList.add('hidden');
                 mainAppSection.classList.remove('hidden');
                 adminControlsSection.classList.add('hidden');
-                logoutButton.classList.add('hidden');
-                adminStatusDiv.textContent = 'สถานะ: ผู้ใช้งานทั่วไป';
+                adminStatusDiv.innerHTML = 'สถานะ: ผู้ใช้งานทั่วไป <button id="logoutButton" class="hidden" onclick="handleLogout()">ออกจากระบบ</button>';
+                logoutButton = document.getElementById('logoutButton'); // Re-assign
+                if(logoutButton) logoutButton.classList.add('hidden'); // Ensure it's hidden for general user
                 Swal.fire('ยินดีต้อนรับ!', 'เข้าสู่ระบบในโหมดผู้ใช้งานทั่วไป', 'info');
             }
             initApp();
@@ -314,16 +314,17 @@
             isAdmin = false;
             mainAppSection.classList.add('hidden');
             loginSection.classList.remove('hidden');
-            adminStatusDiv.textContent = 'สถานะ: ผู้ใช้งานทั่วไป';
+            document.getElementById('username').value = "admin"; // Reset login form for convenience
+            document.getElementById('password').value = "1234";
+            adminStatusDiv.textContent = 'สถานะ: ผู้ใช้งานทั่วไป'; // This might be overwritten by login screen
             Swal.fire('สำเร็จ!', 'ออกจากระบบเรียบร้อย', 'success');
         }
         
-        // --- Student Management (fetchStudents, populateStudentsCallback, handleAddStudent, etc. เหมือนเดิม) ---
         function fetchStudents() {
             Swal.fire({ title: 'กำลังโหลดรายชื่อนักเรียน...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
             const callbackName = 'populateStudentsCallback_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
             window[callbackName] = (data) => {
-                const currentScript = document.currentScript || document.getElementById(`jsonp-script-${scriptTagIdCounter-1}`);
+                const currentScript = document.querySelector(`script[src*="${callbackName}"]`);
                 populateStudentsCallback(data);
                 delete window[callbackName]; 
                 if (currentScript) cleanupJsonpScript(currentScript.id);
@@ -333,7 +334,7 @@
 
         function populateStudentsCallback(data) {
             Swal.close();
-            if (data && data.students) {
+            if (data && data.status === 'success' && data.students) {
                 studentsList = data.students;
                 studentSelect.innerHTML = '<option value="">-- เลือกนักเรียน --</option>';
                 deleteStudentSelect.innerHTML = '<option value="">-- เลือกนักเรียนที่จะลบ --</option>';
@@ -344,7 +345,7 @@
                     }
                 });
             } else {
-                Swal.fire('ข้อผิดพลาด!', 'ไม่สามารถโหลดรายชื่อนักเรียนได้' + (data.message ? `: ${data.message}` : ''), 'error');
+                 Swal.fire('ข้อผิดพลาด!', 'ไม่สามารถโหลดรายชื่อนักเรียนได้' + (data && data.message ? `: ${data.message}` : ''), 'error');
             }
         }
         
@@ -357,7 +358,7 @@
             Swal.fire({ title: 'กำลังเพิ่มนักเรียน...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
             const callbackName = 'addStudentCallback_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
             window[callbackName] = (response) => {
-                const currentScript = document.currentScript || document.getElementById(`jsonp-script-${scriptTagIdCounter-1}`);
+                const currentScript = document.querySelector(`script[src*="${callbackName}"]`);
                 addStudentCallback(response);
                 delete window[callbackName];
                 if (currentScript) cleanupJsonpScript(currentScript.id);
@@ -371,7 +372,7 @@
                 newStudentNameInput.value = '';
                 fetchStudents(); 
             } else {
-                Swal.fire('ข้อผิดพลาด!', response.message || 'ไม่สามารถเพิ่มนักเรียนได้', 'error');
+                Swal.fire('ข้อผิดพลาด!', (response && response.message) || 'ไม่สามารถเพิ่มนักเรียนได้', 'error');
             }
         }
 
@@ -395,7 +396,7 @@
                     Swal.fire({ title: 'กำลังลบนักเรียน...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
                     const callbackName = 'deleteStudentCallback_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
                     window[callbackName] = (response) => {
-                        const currentScript = document.currentScript || document.getElementById(`jsonp-script-${scriptTagIdCounter-1}`);
+                        const currentScript = document.querySelector(`script[src*="${callbackName}"]`);
                         deleteStudentCallback(response);
                         delete window[callbackName];
                         if (currentScript) cleanupJsonpScript(currentScript.id);
@@ -410,11 +411,10 @@
                 Swal.fire('สำเร็จ!', response.message, 'success');
                 fetchStudents(); 
             } else {
-                Swal.fire('ข้อผิดพลาด!', response.message || 'ไม่สามารถลบนักเรียนได้', 'error');
+                Swal.fire('ข้อผิดพลาด!', (response && response.message) || 'ไม่สามารถลบนักเรียนได้', 'error');
             }
         }
 
-        // --- NEW: Fetch Student's Current Total Score ---
         function fetchStudentCurrentTotalScore(studentName) {
             if (!studentName) {
                 studentBaseScore = 0;
@@ -425,18 +425,16 @@
             Swal.fire({ title: 'กำลังโหลดคะแนนปัจจุบัน...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }});
             const callbackName = 'fetchStudentScoreCallback_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
             window[callbackName] = (data) => {
-                const currentScript = document.currentScript || document.getElementById(`jsonp-script-${scriptTagIdCounter-1}`);
+                const currentScript = document.querySelector(`script[src*="${callbackName}"]`);
                 Swal.close();
                 if (data && data.status === 'success' && data.studentName === studentName) {
                     studentBaseScore = data.totalScore;
                     currentScoreOnForm = data.totalScore;
                 } else {
-                    studentBaseScore = 0; // หากไม่พบนักเรียน หรือมีข้อผิดพลาด
+                    studentBaseScore = 0; 
                     currentScoreOnForm = 0;
-                    if (data.status === 'error') {
+                    if (data && data.status === 'error') {
                         console.error("Fetch score error for " + studentName + ": " + data.message);
-                        // Optionally show a non-blocking warning to user
-                        // Swal.fire('คำเตือน', `ไม่สามารถโหลดคะแนนของ ${studentName} ได้: ${data.message}`, 'warning');
                     }
                 }
                 updateScoreDisplay();
@@ -446,7 +444,6 @@
             jsonpRequest({ action: 'getStudentCurrentScore', student: studentName }, callbackName);
         }
 
-        // --- MODIFIED: Score Controls ---
         function updateScoreDisplay() {
             currentScoreDisplay.textContent = currentScoreOnForm;
         }
@@ -458,17 +455,16 @@
 
         function decreaseScore() {
             currentScoreOnForm -= 5;
-            if (currentScoreOnForm < 0) { // คะแนนรวมสุดท้ายไม่ควรต่ำกว่า 0
+            if (currentScoreOnForm < 0) { 
                 currentScoreOnForm = 0;
             }
             updateScoreDisplay();
         }
 
-        // --- MODIFIED: Save Good Deed (now Save Score Change) ---
         function handleSaveDeed() {
             const date = recordDateInput.value;
             const student = studentSelect.value;
-            const finalScoreOnForm = currentScoreOnForm; // นี่คือคะแนนรวมใหม่ที่ผู้ใช้ต้องการ
+            const finalScoreOnForm = currentScoreOnForm;
 
             if (!date) {
                 Swal.fire('ผิดพลาด!', 'กรุณาเลือกวันที่บันทึก', 'warning');
@@ -479,7 +475,7 @@
                 return;
             }
 
-            const pointsForThisDeed = finalScoreOnForm - studentBaseScore; // คำนวณส่วนต่าง
+            const pointsForThisDeed = finalScoreOnForm - studentBaseScore;
 
             if (pointsForThisDeed === 0) {
                 Swal.fire('ไม่มีการเปลี่ยนแปลง', 'คะแนนไม่มีการเปลี่ยนแปลงจากเดิม', 'info');
@@ -489,45 +485,40 @@
             Swal.fire({ title: 'กำลังบันทึกการเปลี่ยนแปลงคะแนน...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
             const callbackName = 'saveDeedCallback_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
             window[callbackName] = (response) => {
-                const currentScript = document.currentScript || document.getElementById(`jsonp-script-${scriptTagIdCounter-1}`);
-                saveDeedCallback(response, finalScoreOnForm); // ส่งคะแนนรวมใหม่ไปด้วย
+                const currentScript = document.querySelector(`script[src*="${callbackName}"]`);
+                saveDeedCallback(response, finalScoreOnForm);
                 delete window[callbackName];
                 if (currentScript) cleanupJsonpScript(currentScript.id);
             };
-            // ส่ง 'pointsForThisDeed' ซึ่งเป็นส่วนต่าง
             jsonpRequest({ action: 'logGoodDeed', date: date, student: student, points: pointsForThisDeed }, callbackName);
         }
 
-        // Modified original saveDeedCallback
         function saveDeedCallback(response, newTotalScoreForStudent) {
             if (response && response.status === 'success') {
                 Swal.fire('สำเร็จ!', response.message, 'success');
-                studentBaseScore = newTotalScoreForStudent; // อัปเดตคะแนนตั้งต้นเป็นคะแนนใหม่
-                currentScoreOnForm = newTotalScoreForStudent; // อัปเดตคะแนนบนฟอร์มเป็นคะแนนใหม่
+                studentBaseScore = newTotalScoreForStudent; 
+                currentScoreOnForm = newTotalScoreForStudent; 
                 updateScoreDisplay();
-                // ไม่ต้อง reset studentSelect.value เพื่อให้ผู้ใช้สามารถปรับปรุงคะแนนนักเรียนคนเดิมต่อได้
-                fetchDailySummary(); // รีเฟรชสรุปรายวันเพื่อแสดงผลรวมที่อัปเดต
+                fetchDailySummary(); 
             } else {
-                Swal.fire('ข้อผิดพลาด!', response.message || 'ไม่สามารถบันทึกข้อมูลได้', 'error');
-                // หากบันทึกไม่สำเร็จ อาจจะต้องพิจารณาดึงคะแนนล่าสุดของนักเรียนมาแสดงใหม่
-                // หรือปล่อยให้ผู้ใช้แก้ไขเอง
-                fetchStudentCurrentTotalScore(studentSelect.value); // ลองดึงคะแนนล่าสุดมาแสดงใหม่
+                Swal.fire('ข้อผิดพลาด!', (response && response.message) || 'ไม่สามารถบันทึกข้อมูลได้', 'error');
+                if(studentSelect.value) { // Attempt to re-fetch score if a student is selected
+                    fetchStudentCurrentTotalScore(studentSelect.value);
+                }
             }
         }
 
-        // --- Display Data (fetchDailySummary, displayDailySummaryCallback, etc. เหมือนเดิม) ---
-         function fetchDailySummary() {
+        function fetchDailySummary() {
             const date = recordDateInput.value;
             if (!date) {
-                // Swal.fire('ข้อมูลไม่ครบถ้วน', 'กรุณาเลือกวันที่สำหรับสรุปรายวัน', 'info');
                 dailySummaryOutput.innerHTML = "<p>โปรดเลือกวันที่แล้วกดรีเฟรช</p>";
                 return;
             }
             Swal.fire({ title: 'กำลังโหลดสรุปรายวัน...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-             const callbackName = 'displayDailySummaryCallback_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+            const callbackName = 'displayDailySummaryCallback_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
             window[callbackName] = (data) => {
-                const currentScript = document.currentScript || document.getElementById(`jsonp-script-${scriptTagIdCounter-1}`);
-                displayDailySummaryCallback(data);
+                const currentScript = document.querySelector(`script[src*="${callbackName}"]`);
+                displayDailySummaryCallback(data); // Swal.close() is inside this function
                 delete window[callbackName];
                 if (currentScript) cleanupJsonpScript(currentScript.id);
             };
@@ -535,10 +526,10 @@
         }
 
         function displayDailySummaryCallback(data) {
-            Swal.close(); // ปิด loading ของ fetchDailySummary
+            Swal.close(); 
             if (data && data.status === 'success') {
                 let html = `<h3>สรุปวันที่: ${recordDateInput.value}</h3>`;
-                html += `<p><strong>ยอดรวมการเปลี่ยนแปลงคะแนนในวันนี้: ${data.dailyTotal} คะแนน</strong></p>`; // เปลี่ยนข้อความเล็กน้อย
+                html += `<p><strong>ยอดรวมการเปลี่ยนแปลงคะแนนในวันนี้: ${data.dailyTotal} คะแนน</strong></p>`;
                 if (data.summary && data.summary.length > 0) {
                     html += `<table>
                                 <tr>
@@ -562,7 +553,7 @@
                 dailySummaryOutput.innerHTML = html;
             } else {
                 dailySummaryOutput.innerHTML = "<p>เกิดข้อผิดพลาดในการโหลดข้อมูลสรุปรายวัน</p>";
-                Swal.fire('ข้อผิดพลาด!', 'ไม่สามารถโหลดข้อมูลสรุปรายวัน: ' + (data.message || ''), 'error');
+                Swal.fire('ข้อผิดพลาด!', 'ไม่สามารถโหลดข้อมูลสรุปรายวัน: ' + (data && data.message ? data.message : 'ไม่ทราบสาเหตุ'), 'error');
             }
         }
 
@@ -576,8 +567,8 @@
             Swal.fire({ title: 'กำลังโหลดสถิติรายเดือน...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
             const callbackName = 'displayMonthlyStatsCallback_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
             window[callbackName] = (data) => {
-                const currentScript = document.currentScript || document.getElementById(`jsonp-script-${scriptTagIdCounter-1}`);
-                displayMonthlyStatsCallback(data);
+                const currentScript = document.querySelector(`script[src*="${callbackName}"]`);
+                displayMonthlyStatsCallback(data); // Swal.close() is inside this function
                 delete window[callbackName];
                 if (currentScript) cleanupJsonpScript(currentScript.id);
             };
@@ -608,12 +599,10 @@
                 monthlyStatsOutput.innerHTML = html;
             } else {
                 monthlyStatsOutput.innerHTML = "<p>เกิดข้อผิดพลาดในการโหลดข้อมูลสถิติรายเดือน</p>";
-                Swal.fire('ข้อผิดพลาด!', 'ไม่สามารถโหลดข้อมูลสถิติรายเดือน: ' + (data.message || ''), 'error');
+                Swal.fire('ข้อผิดพลาด!', 'ไม่สามารถโหลดข้อมูลสถิติรายเดือน: ' + (data && data.message ? data.message : 'ไม่ทราบสาเหตุ'), 'error');
             }
         }
 
-
-        // --- Initialize App ---
         function initApp() {
             const today = new Date();
             const yyyy = today.getFullYear();
@@ -622,22 +611,19 @@
             recordDateInput.value = `${yyyy}-${mm}-${dd}`;
 
             statsMonthInput.value = today.getMonth() + 1;
-            statsYearInput.value = yyyy;
+            statsYearInput.value = yyyy; // Set current year for stats year input
 
-            // เพิ่ม Event listener ให้ studentSelect
             studentSelect.addEventListener('change', function() {
                 fetchStudentCurrentTotalScore(this.value);
             });
 
-            fetchStudents(); // โหลดรายชื่อนักเรียน
-            updateScoreDisplay(); // อัปเดตการแสดงผลคะแนนเริ่มต้น (เป็น 0)
-            if (mainAppSection.classList.contains('hidden') === false) { // Fetch daily summary only if main app is visible
+            fetchStudents(); 
+            updateScoreDisplay(); 
+            if (!mainAppSection.classList.contains('hidden')) {
                  fetchDailySummary();
             }
         }
         
-        // For this specific requirement (start with login), initApp is called within handleLogin.
-        // No need for window.onload = initApp; here.
     </script>
 </body>
 </html>
