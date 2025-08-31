@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-bg: #f0f7ff;
+            --secondary-bg: #ffffff;
+            --header-color: #005a9c;
+            --text-color: #333333;
+            --accent-color: #00a8cc;
+            --accent-hover: #007b99;
+            --border-color: #dceefc;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+        }
+
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        #app-container {
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--secondary-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            overflow: hidden;
+        }
+
+        header {
+            background-color: var(--header-color);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.8em;
+        }
+
+        nav {
+            display: flex;
+            justify-content: stretch;
+            background-color: #e3f2fd;
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 15px 10px;
+            border: none;
+            background-color: transparent;
+            font-family: 'Kanit', sans-serif;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav-btn.active {
+            background-color: var(--secondary-bg);
+            color: var(--header-color);
+            border-bottom: 3px solid var(--accent-color);
+        }
+
+        .content-section {
+            padding: 25px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .control-panel {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .control-panel label {
+            font-size: 1.1em;
+            margin-right: 10px;
+        }
+
+        .btn-random {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            font-family: 'Kanit', sans-serif;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-random:hover {
+            background-color: var(--accent-hover);
+        }
+        
+        #mother-select {
+            padding: 10px;
+            font-size: 1em;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-family: 'Kanit', sans-serif;
+        }
+
+        #results-container {
+            margin-top: 20px;
+            display: grid;
+            gap: 15px;
+        }
+
+        .grade-card {
+            background-color: #f8fbff;
+            border: 1px solid var(--border-color);
+            border-left: 5px solid var(--accent-color);
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .grade-card h3 {
+            margin: 0 0 10px 0;
+            color: var(--header-color);
+        }
+
+        .grade-card p {
+            margin: 0;
+            font-size: 1.1em;
+            word-wrap: break-word;
+        }
+
+        .problem-card {
+             background-color: #f8fbff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 1.2em;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .problem-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 2px 8px var(--shadow-color);
+        }
+
+        #loader {
+            text-align: center;
+            font-size: 1.2em;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app-container">
+        <header>
+            <h1>✨ แอปสุ่มคำและสูตรคูณ ✨</h1>
+        </header>
+
+        <nav>
+            <button id="nav-words" class="nav-btn active">📚 สุ่มคำพื้นฐาน</button>
+            <button id="nav-multiplication" class="nav-btn">🔢 สุ่มสูตรคูณ</button>
+        </nav>
+
+        <main>
+            <section id="words-section" class="content-section">
+                <div class="control-panel">
+                    <button id="random-words-btn" class="btn-random">สุ่มคำศัพท์ ป.2 - ป.6</button>
+                </div>
+                <div id="words-results" class="results-container"></div>
+            </section>
+
+            <section id="multiplication-section" class="content-section hidden">
+                <div class="control-panel">
+                     <label for="mother-select">เลือกแม่สูตรคูณ:</label>
+                    <select id="mother-select">
+                        </select>
+                    <button id="random-multiplication-btn" class="btn-random">สุ่มโจทย์</button>
+                </div>
+                <div id="multiplication-results" class="results-container"></div>
+            </section>
+            
+            <div id="loader" class="hidden">กำลังสุ่มข้อมูล...</div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navWords = document.getElementById('nav-words');
+            const navMultiplication = document.getElementById('nav-multiplication');
+            const wordsSection = document.getElementById('words-section');
+            const multiplicationSection = document.getElementById('multiplication-section');
+            
+            const randomWordsBtn = document.getElementById('random-words-btn');
+            const wordsResults = document.getElementById('words-results');
+            
+            const motherSelect = document.getElementById('mother-select');
+            const randomMultiplicationBtn = document.getElementById('random-multiplication-btn');
+            const multiplicationResults = document.getElementById('multiplication-results');
+            
+            const loader = document.getElementById('loader');
+
+            // Populate multiplication select options
+            for (let i = 2; i <= 12; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `แม่ ${i}`;
+                motherSelect.appendChild(option);
+            }
+            
+            // Navigation logic
+            navWords.addEventListener('click', () => {
+                navWords.classList.add('active');
+                navMultiplication.classList.remove('active');
+                wordsSection.classList.remove('hidden');
+                multiplicationSection.classList.add('hidden');
+            });
+            
+            navMultiplication.addEventListener('click', () => {
+                navMultiplication.classList.add('active');
+                navWords.classList.remove('active');
+                multiplicationSection.classList.remove('hidden');
+                wordsSection.classList.add('hidden');
+            });
+
+            // Random Words logic
+            randomWordsBtn.addEventListener('click', () => {
+                loader.classList.remove('hidden');
+                wordsResults.innerHTML = '';
+                google.script.run
+                    .withSuccessHandler(displayWords)
+                    .withFailureHandler(showError)
+                    .getRandomWords();
+            });
+
+            function displayWords(data) {
+                loader.classList.add('hidden');
+                const grades = {p2: 'ป.2', p3: 'ป.3', p4: 'ป.4', p5: 'ป.5', p6: 'ป.6'};
+                for (const gradeKey in data) {
+                    const card = document.createElement('div');
+                    card.className = 'grade-card';
+                    card.innerHTML = `<h3>คำพื้นฐาน ${grades[gradeKey]}</h3><p>${data[gradeKey].join('، ')}</p>`;
+                    wordsResults.appendChild(card);
+                }
+            }
+            
+            // Random Multiplication logic
+            randomMultiplicationBtn.addEventListener('click', () => {
+                const selectedMother = motherSelect.value;
+                loader.classList.remove('hidden');
+                multiplicationResults.innerHTML = '';
+                google.script.run
+                    .withSuccessHandler(displayMultiplication)
+                    .withFailureHandler(showError)
+                    .getRandomMultiplication(selectedMother);
+            });
+            
+            function displayMultiplication(problems) {
+                loader.classList.add('hidden');
+                problems.forEach(p => {
+                    const card = document.createElement('div');
+                    card.className = 'problem-card';
+                    card.innerHTML = `${p.question} = <strong>${p.answer}</strong>`;
+                    multiplicationResults.appendChild(card);
+                });
+            }
+
+            function showError(error) {
+                loader.classList.add('hidden');
+                alert('เกิดข้อผิดพลาด: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
