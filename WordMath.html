@@ -1,287 +1,271 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
-    <base target="_top">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap" rel="stylesheet">
+    <title>เว็บแอปสำหรับฝึกการเรียนรู้</title>
     <style>
-        :root {
-            --primary-bg: #f0f7ff;
-            --secondary-bg: #ffffff;
-            --header-color: #005a9c;
-            --text-color: #333333;
-            --accent-color: #00a8cc;
-            --accent-hover: #007b99;
-            --border-color: #dceefc;
-            --shadow-color: rgba(0, 0, 0, 0.08);
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&display=swap');
 
         body {
             font-family: 'Kanit', sans-serif;
-            background-color: var(--primary-bg);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
+            background-color: #F0FFF0;
+            color: #333333;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
-        #app-container {
+        .container {
             width: 100%;
             max-width: 800px;
-            background-color: var(--secondary-bg);
-            border-radius: 12px;
-            box-shadow: 0 4px 15px var(--shadow-color);
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
 
-        header {
-            background-color: var(--header-color);
+        .header {
+            background-color: #4CAF50;
             color: white;
             padding: 20px;
             text-align: center;
+            font-size: 2em;
+            font-weight: 700;
         }
 
-        header h1 {
-            margin: 0;
-            font-size: 1.8em;
-        }
-
-        nav {
+        .tabs {
             display: flex;
-            justify-content: stretch;
-            background-color: #e3f2fd;
+            justify-content: center;
+            background-color: #8BC34A;
         }
 
-        .nav-btn {
-            flex: 1;
-            padding: 15px 10px;
+        .tab-button {
+            background-color: #8BC34A;
+            color: white;
             border: none;
-            background-color: transparent;
-            font-family: 'Kanit', sans-serif;
-            font-size: 1.1em;
+            padding: 15px 30px;
             cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
-            border-bottom: 3px solid transparent;
+            font-size: 1.2em;
+            transition: background-color 0.3s ease;
+            outline: none;
+            flex-grow: 1;
         }
 
-        .nav-btn.active {
-            background-color: var(--secondary-bg);
-            color: var(--header-color);
-            border-bottom: 3px solid var(--accent-color);
+        .tab-button:hover, .tab-button.active {
+            background-color: #4CAF50;
         }
 
-        .content-section {
-            padding: 25px;
+        .content {
+            padding: 30px;
+            text-align: center;
         }
 
-        .hidden {
+        .tab-content {
             display: none;
         }
 
-        .control-panel {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-        
-        .control-panel label {
-            font-size: 1.1em;
-            margin-right: 10px;
+        .tab-content.active {
+            display: block;
         }
 
-        .btn-random {
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 12px 25px;
-            font-size: 1.1em;
-            font-family: 'Kanit', sans-serif;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        
-        .btn-random:hover {
-            background-color: var(--accent-hover);
-        }
-        
-        #mother-select {
-            padding: 10px;
-            font-size: 1em;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            font-family: 'Kanit', sans-serif;
+        h2 {
+            color: #4CAF50;
+            margin-bottom: 20px;
         }
 
-        #results-container {
-            margin-top: 20px;
-            display: grid;
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             gap: 15px;
         }
 
-        .grade-card {
-            background-color: #f8fbff;
-            border: 1px solid var(--border-color);
-            border-left: 5px solid var(--accent-color);
-            border-radius: 8px;
-            padding: 15px;
-        }
-        
-        .grade-card h3 {
-            margin: 0 0 10px 0;
-            color: var(--header-color);
+        select, button {
+            padding: 12px 20px;
+            font-size: 1em;
+            border-radius: 10px;
+            border: 2px solid #4CAF50;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Kanit', sans-serif;
         }
 
-        .grade-card p {
-            margin: 0;
-            font-size: 1.1em;
-            word-wrap: break-word;
+        select {
+            background-color: #FFEB3B;
         }
 
-        .problem-card {
-             background-color: #f8fbff;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 15px;
-            font-size: 1.2em;
-            text-align: center;
-            transition: transform 0.2s;
+        button {
+            background-color: #8BC34A;
+            color: white;
+            font-weight: 700;
         }
 
-        .problem-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 2px 8px var(--shadow-color);
+        button:hover {
+            background-color: #4CAF50;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        #loader {
-            text-align: center;
-            font-size: 1.2em;
+        .result-box {
+            background-color: #F0FFF0;
+            border: 2px solid #ddd;
+            border-radius: 10px;
             padding: 20px;
+            min-height: 250px;
+            text-align: left;
+            overflow-y: auto;
+            max-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
+
+        .result-item {
+            font-size: 1.5em;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #e0f2f1;
+            border-radius: 8px;
+            width: 100%;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .tabs {
+                flex-direction: column;
+            }
+        }
+
     </style>
 </head>
 <body>
-    <div id="app-container">
-        <header>
-            <h1>✨ แอปสุ่มคำและสูตรคูณ ✨</h1>
-        </header>
 
-        <nav>
-            <button id="nav-words" class="nav-btn active">📚 สุ่มคำพื้นฐาน</button>
-            <button id="nav-multiplication" class="nav-btn">🔢 สุ่มสูตรคูณ</button>
-        </nav>
-
-        <main>
-            <section id="words-section" class="content-section">
-                <div class="control-panel">
-                    <button id="random-words-btn" class="btn-random">สุ่มคำศัพท์ ป.2 - ป.6</button>
-                </div>
-                <div id="words-results" class="results-container"></div>
-            </section>
-
-            <section id="multiplication-section" class="content-section hidden">
-                <div class="control-panel">
-                     <label for="mother-select">เลือกแม่สูตรคูณ:</label>
-                    <select id="mother-select">
-                        </select>
-                    <button id="random-multiplication-btn" class="btn-random">สุ่มโจทย์</button>
-                </div>
-                <div id="multiplication-results" class="results-container"></div>
-            </section>
-            
-            <div id="loader" class="hidden">กำลังสุ่มข้อมูล...</div>
-        </main>
+<div class="container">
+    <div class="header">
+        📚 แอปฝึกการเรียนรู้
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const navWords = document.getElementById('nav-words');
-            const navMultiplication = document.getElementById('nav-multiplication');
-            const wordsSection = document.getElementById('words-section');
-            const multiplicationSection = document.getElementById('multiplication-section');
-            
-            const randomWordsBtn = document.getElementById('random-words-btn');
-            const wordsResults = document.getElementById('words-results');
-            
-            const motherSelect = document.getElementById('mother-select');
-            const randomMultiplicationBtn = document.getElementById('random-multiplication-btn');
-            const multiplicationResults = document.getElementById('multiplication-results');
-            
-            const loader = document.getElementById('loader');
+    <div class="tabs">
+        <button class="tab-button active" data-tab="words">คำศัพท์พื้นฐาน</button>
+        <button class="tab-button" data-tab="multiplication">สูตรคูณ</button>
+    </div>
 
-            // Populate multiplication select options
-            for (let i = 2; i <= 12; i++) {
-                const option = document.createElement('option');
-                option.value = i;
-                option.textContent = `แม่ ${i}`;
-                motherSelect.appendChild(option);
-            }
-            
-            // Navigation logic
-            navWords.addEventListener('click', () => {
-                navWords.classList.add('active');
-                navMultiplication.classList.remove('active');
-                wordsSection.classList.remove('hidden');
-                multiplicationSection.classList.add('hidden');
-            });
-            
-            navMultiplication.addEventListener('click', () => {
-                navMultiplication.classList.add('active');
-                navWords.classList.remove('active');
-                multiplicationSection.classList.remove('hidden');
-                wordsSection.classList.add('hidden');
-            });
+    <div class="content">
+        <div id="words" class="tab-content active">
+            <h2>สุ่มคำศัพท์พื้นฐาน</h2>
+            <div class="controls">
+                <select id="grade-select">
+                    <option value="p2">ป.2</option>
+                    <option value="p3">ป.3</option>
+                    <option value="p4">ป.4</option>
+                    <option value="p5">ป.5</option>
+                    <option value="p6">ป.6</option>
+                </select>
+                <button onclick="generateWords()">สุ่มคำศัพท์ 5 คำ</button>
+            </div>
+            <div class="result-box" id="word-result">
+                <h3>คำศัพท์จะแสดงที่นี่</h3>
+            </div>
+        </div>
 
-            // Random Words logic
-            randomWordsBtn.addEventListener('click', () => {
-                loader.classList.remove('hidden');
-                wordsResults.innerHTML = '';
-                google.script.run
-                    .withSuccessHandler(displayWords)
-                    .withFailureHandler(showError)
-                    .getRandomWords();
-            });
+        <div id="multiplication" class="tab-content">
+            <h2>สุ่มโจทย์สูตรคูณ</h2>
+            <div class="controls">
+                <select id="multiplier-select">
+                    <option value="2">แม่ 2</option>
+                    <option value="3">แม่ 3</option>
+                    <option value="4">แม่ 4</option>
+                    <option value="5">แม่ 5</option>
+                    <option value="6">แม่ 6</option>
+                    <option value="7">แม่ 7</option>
+                    <option value="8">แม่ 8</option>
+                    <option value="9">แม่ 9</option>
+                    <option value="10">แม่ 10</option>
+                    <option value="11">แม่ 11</option>
+                    <option value="12">แม่ 12</option>
+                </select>
+                <button onclick="generateMultiplication()">สุ่มโจทย์ 5 ข้อ</button>
+            </div>
+            <div class="result-box" id="multiplication-result">
+                <h3>โจทย์จะแสดงที่นี่</h3>
+            </div>
+        </div>
+    </div>
+</div>
 
-            function displayWords(data) {
-                loader.classList.add('hidden');
-                const grades = {p2: 'ป.2', p3: 'ป.3', p4: 'ป.4', p5: 'ป.5', p6: 'ป.6'};
-                for (const gradeKey in data) {
-                    const card = document.createElement('div');
-                    card.className = 'grade-card';
-                    card.innerHTML = `<h3>คำพื้นฐาน ${grades[gradeKey]}</h3><p>${data[gradeKey].join('، ')}</p>`;
-                    wordsResults.appendChild(card);
-                }
-            }
-            
-            // Random Multiplication logic
-            randomMultiplicationBtn.addEventListener('click', () => {
-                const selectedMother = motherSelect.value;
-                loader.classList.remove('hidden');
-                multiplicationResults.innerHTML = '';
-                google.script.run
-                    .withSuccessHandler(displayMultiplication)
-                    .withFailureHandler(showError)
-                    .getRandomMultiplication(selectedMother);
-            });
-            
-            function displayMultiplication(problems) {
-                loader.classList.add('hidden');
-                problems.forEach(p => {
-                    const card = document.createElement('div');
-                    card.className = 'problem-card';
-                    card.innerHTML = `${p.question} = <strong>${p.answer}</strong>`;
-                    multiplicationResults.appendChild(card);
-                });
-            }
+<script>
+    const wordData = {
+        'p2': ['ไก่', 'ไข่', 'ปลา', 'นก', 'หนู', 'แมว', 'หมา', 'บ้าน', 'รถ', 'โรงเรียน', 'เพื่อน', 'แม่', 'พ่อ', 'พี่', 'น้อง', 'กิน', 'นอน', 'เล่น', 'วิ่ง', 'เดิน', 'นั่ง', 'ยืน', 'หัวเราะ', 'ร้องไห้', 'พูด', 'ฟัง', 'มอง', 'เห็น', 'จับ', 'ปล่อย', 'ดี', 'ชั่ว', 'สุข', 'เศร้า', 'ร้อน', 'หนาว', 'สูง', 'ต่ำ', 'ยาว', 'สั้น', 'เล็ก', 'ใหญ่', 'ขาว', 'ดำ', 'แดง', 'เขียว', 'ฟ้า', 'น้ำเงิน', 'เหลือง'],
+        'p3': ['จระเข้', 'ช้าง', 'ลิง', 'เสือ', 'ม้า', 'หมู', 'เป็ด', 'ไก่', 'นกแก้ว', 'ปลาทอง', 'เรือ', 'เครื่องบิน', 'จักรยาน', 'รถไฟ', 'ขนม', 'อาหาร', 'ผัก', 'ผลไม้', 'น้ำ', 'นม', 'ดินสอ', 'ยางลบ', 'ไม้บรรทัด', 'สมุด', 'หนังสือ', 'กระเป๋า', 'โรงพยาบาล', 'สถานีตำรวจ', 'ตลาด', 'ห้างสรรพสินค้า', 'สวนสัตว์', 'ทะเล', 'ภูเขา', 'แม่น้ำ', 'ทุ่งนา', 'ท้องฟ้า', 'ดวงอาทิตย์', 'ดวงจันทร์', 'ดาว', 'เมฆ', 'ฝน', 'ลม', 'ไฟ', 'ดิน', 'น้ำ', 'หิน'],
+        'p4': ['อารมณ์', 'ความคิด', 'ความรู้สึก', 'ความจริง', 'ความฝัน', 'ความหวัง', 'ความสุข', 'ความทุกข์', 'ความรัก', 'ความเมตตา', 'ความกรุณา', 'ความสามัคคี', 'ความเสียสละ', 'ความรับผิดชอบ', 'ความซื่อสัตย์', 'ความอดทน', 'ความขยัน', 'ความประหยัด', 'คุณธรรม', 'จริยธรรม', 'วัฒนธรรม', 'ประเพณี', 'ศาสนา', 'ภาษา', 'การเมือง', 'การปกครอง', 'เศรษฐกิจ', 'สังคม', 'สิ่งแวดล้อม', 'วิทยาศาสตร์', 'คณิตศาสตร์', 'ประวัติศาสตร์', 'ภูมิศาสตร์', 'ศิลปะ', 'ดนตรี', 'กีฬา', 'สุขภาพ', 'ร่างกาย', 'จิตใจ', 'สมอง', 'หัวใจ', 'ปอด', 'กระเพาะอาหาร', 'ลำไส้', 'กระดูก', 'กล้ามเนื้อ'],
+        'p5': ['กฎหมาย', 'รัฐธรรมนูญ', 'ประชาธิปไตย', 'เผด็จการ', 'ระบอบ', 'การเลือกตั้ง', 'รัฐบาล', 'ฝ่ายค้าน', 'งบประมาณ', 'ภาษี', 'การค้า', 'การลงทุน', 'อุตสาหกรรม', 'เกษตรกรรม', 'เทคโนโลยี', 'การสื่อสาร', 'อินเทอร์เน็ต', 'คอมพิวเตอร์', 'โทรศัพท์มือถือ', 'พลังงาน', 'ไฟฟ้า', 'น้ำมัน', 'ก๊าซธรรมชาติ', 'พลังงานแสงอาทิตย์', 'พลังงานลม', 'มลพิษ', 'ภาวะโลกร้อน', 'ภัยธรรมชาติ', 'แผ่นดินไหว', 'สึนามิ', 'พายุ', 'น้ำท่วม', 'ภัยแล้ง', 'การอนุรักษ์', 'การฟื้นฟู', 'ความหลากหลายทางชีวภาพ', 'ระบบนิเวศ', 'สิ่งมีชีวิต', 'พืช', 'สัตว์', 'จุลินทรีย์', 'เซลล์', 'ดีเอ็นเอ', 'พันธุกรรม', 'วิวัฒนาการ'],
+        'p6': ['อภิปราย', 'วิเคราะห์', 'สังเคราะห์', 'ประเมินผล', 'เปรียบเทียบ', 'แยกแยะ', 'สรุป', 'ข้อเท็จจริง', 'ข้อคิดเห็น', 'อคติ', 'เหตุผล', 'หลักการ', 'ทฤษฎี', 'สมมติฐาน', 'การทดลอง', 'การสำรวจ', 'การวิจัย', 'สถิติ', 'ข้อมูล', 'สารสนเทศ', 'องค์ความรู้', 'ปัญญาประดิษฐ์', 'ระบบอัตโนมัติ', 'หุ่นยนต์', 'การเข้ารหัส', 'โปรแกรมคอมพิวเตอร์', 'เครือข่าย', 'ความปลอดภัย', 'การโจมตี', 'การป้องกัน', 'อาชญากรรม', 'การก่อการร้าย', 'สิทธิมนุษยชน', 'สิทธิเด็ก', 'สนธิสัญญา', 'องค์กรระหว่างประเทศ', 'สหประชาชาติ', 'กองทุน', 'นโยบาย', 'ยุทธศาสตร์', 'นวัตกรรม', 'ความคิดสร้างสรรค์', 'จินตนาการ', 'แรงบันดาลใจ', 'ความสำเร็จ', 'ความล้มเหลว']
+    };
 
-            function showError(error) {
-                loader.classList.add('hidden');
-                alert('เกิดข้อผิดพลาด: ' + error.message);
+    function getRandomWords(grade) {
+        const words = wordData[grade];
+        const randomWords = [];
+        const usedIndices = new Set();
+        while (randomWords.length < 5 && usedIndices.size < words.length) {
+            const randomIndex = Math.floor(Math.random() * words.length);
+            if (!usedIndices.has(randomIndex)) {
+                usedIndices.add(randomIndex);
+                randomWords.push(words[randomIndex]);
             }
+        }
+        return randomWords;
+    }
+
+    function generateWords() {
+        const grade = document.getElementById('grade-select').value;
+        const words = getRandomWords(grade);
+        const resultBox = document.getElementById('word-result');
+        resultBox.innerHTML = '<h3>คำศัพท์ที่สุ่มได้:</h3>';
+        words.forEach(word => {
+            const p = document.createElement('p');
+            p.textContent = word;
+            p.classList.add('result-item');
+            resultBox.appendChild(p);
         });
-    </script>
+    }
+
+    function generateMultiplication() {
+        const multiplier = parseInt(document.getElementById('multiplier-select').value);
+        const resultBox = document.getElementById('multiplication-result');
+        resultBox.innerHTML = '<h3>โจทย์สูตรคูณ:</h3>';
+        
+        for (let i = 0; i < 5; i++) {
+            const randomNumber = Math.floor(Math.random() * 12) + 1;
+            const answer = multiplier * randomNumber;
+            
+            const questionDiv = document.createElement('div');
+            questionDiv.classList.add('result-item');
+            questionDiv.innerHTML = `<p>${multiplier} × ${randomNumber} = ?</p>
+                                     <p style="color: #4CAF50; font-weight: bold; margin-top: 5px;">เฉลย: ${answer}</p>`;
+            resultBox.appendChild(questionDiv);
+        }
+    }
+
+    // Tab switching logic
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', () => {
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            button.classList.add('active');
+            const targetTab = button.getAttribute('data-tab');
+            document.getElementById(targetTab).classList.add('active');
+        });
+    });
+
+</script>
+
 </body>
 </html>
