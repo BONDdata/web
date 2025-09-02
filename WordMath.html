@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>เว็บแอปสำหรับฝึกการเรียนรู้</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai+Looped:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&display=swap');
-
         body {
-            font-family: 'Google Noto Fonts', Noto Sans Thai Looped;
+            font-family: 'Noto Sans Thai Looped', sans-serif;
             background-color: #F0FFF0;
             color: #333333;
             display: flex;
@@ -41,7 +42,7 @@
         .tabs {
             display: flex;
             justify-content: center;
-            background-color: #C8E6C9; 
+            background-color: #C8E6C9;
         }
 
         .tab-button {
@@ -60,7 +61,7 @@
         .tab-button:hover {
             background-color: #A5D6A7;
         }
-        
+
         .tab-button.active {
             background-color: #66BB6A;
             color: white;
@@ -101,7 +102,7 @@
             border: 2px solid #4CAF50;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-family: 'Kanit', Noto Sans Thai Looped;
+            font-family: 'Noto Sans Thai Looped', sans-serif;
         }
 
         select {
@@ -119,7 +120,7 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        
+
         .result-container {
             display: flex;
             flex-wrap: wrap;
@@ -153,8 +154,7 @@
             border: 2px solid #ddd;
             border-radius: 10px;
             padding: 20px;
-            min-height: 250px;
-            text-align: left;
+            text-align: center;
             overflow-y: auto;
             max-height: 400px;
             display: flex;
@@ -162,34 +162,54 @@
             justify-content: center;
             align-items: center;
             width: 100%;
+            max-width: 350px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .result-item {
-            font-size: 1.5em;
+            font-size: 2em;
             margin: 10px 0;
-            padding: 10px;
+            padding: 15px;
             background-color: #e0f2f1;
             border-radius: 8px;
             width: 100%;
+            max-width: 300px;
             text-align: center;
         }
-        
-        /* สไตล์สำหรับซ่อน/แสดงเฉลย */
+
+        .result-item p {
+            font-size: 1.2em;
+            margin: 0;
+        }
+
         .answer {
-            color: #4CAF50; 
+            color: #4CAF50;
             font-weight: bold;
             margin-top: 5px;
-            display: none; /* ซ่อนเฉลยเริ่มต้น */
+            display: none;
+            font-size: 1.2em;
         }
-        
+
         .show-answer-btn {
             background-color: #FFEB3B;
             color: #4CAF50;
             border: 2px solid #4CAF50;
             padding: 8px 15px;
             margin-top: 10px;
-            font-size: 0.9em;
+            font-size: 1.2em;
             font-weight: 700;
+        }
+
+        #timer, #score-summary {
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-top: 20px;
+            color: #4CAF50;
+        }
+
+        #score-summary p {
+            margin: 5px 0;
         }
 
         @media (max-width: 768px) {
@@ -198,6 +218,16 @@
             }
             .grade-result-box {
                 width: 100%;
+            }
+            .result-item {
+                font-size: 1.5em;
+            }
+            .result-box {
+                width: 90%;
+                max-width: 90%;
+            }
+            .result-item p, .answer {
+                font-size: 1em;
             }
         }
     </style>
@@ -242,9 +272,11 @@
                 </select>
                 <button onclick="generateMultiplication()">สุ่มโจทย์ 5 ข้อ</button>
             </div>
+            <div id="timer"></div>
             <div class="result-box" id="multiplication-result">
                 <h3>โจทย์จะแสดงที่นี่</h3>
             </div>
+            <div id="score-summary"></div>
         </div>
     </div>
 </div>
@@ -257,6 +289,11 @@
         'p5': ['กฎหมาย', 'รัฐธรรมนูญ', 'ประชาธิปไตย', 'เผด็จการ', 'ระบอบ', 'การเลือกตั้ง', 'รัฐบาล', 'ฝ่ายค้าน', 'งบประมาณ', 'ภาษี', 'การค้า', 'การลงทุน', 'อุตสาหกรรม', 'เกษตรกรรม', 'เทคโนโลยี', 'การสื่อสาร', 'อินเทอร์เน็ต', 'คอมพิวเตอร์', 'โทรศัพท์มือถือ', 'พลังงาน', 'ไฟฟ้า', 'น้ำมัน', 'ก๊าซธรรมชาติ', 'พลังงานแสงอาทิตย์', 'พลังงานลม', 'มลพิษ', 'ภาวะโลกร้อน', 'ภัยธรรมชาติ', 'แผ่นดินไหว', 'สึนามิ', 'พายุ', 'น้ำท่วม', 'ภัยแล้ง', 'การอนุรักษ์', 'การฟื้นฟู', 'ความหลากหลายทางชีวภาพ', 'ระบบนิเวศ', 'สิ่งมีชีวิต', 'พืช', 'สัตว์', 'จุลินทรีย์', 'เซลล์', 'ดีเอ็นเอ', 'พันธุกรรม', 'วิวัฒนาการ', 'การปรับตัว', 'สิ่งแวดล้อม', 'สังคม', 'วัฒนธรรม', 'ประเพณี', 'ศาสนา', 'ความเชื่อ', 'ศีลธรรม', 'จริยธรรม', 'คุณธรรม', 'ความซื่อสัตย์', 'ความรับผิดชอบ', 'ความอดทน', 'ความขยัน', 'ความเสียสละ', 'ความเมตตา', 'ความกรุณา', 'ความสามัคคี', 'ความเห็นแก่ตัว', 'ความโลภ', 'ความโกรธ', 'ความหลง', 'ปัญญา', 'สติปัญญา', 'ความคิด', 'ความจำ', 'การเรียนรู้', 'การสอน', 'การฝึกฝน', 'การค้นคว้า', 'การวิจัย', 'การวิเคราะห์', 'การสังเคราะห์', 'การประเมินผล', 'การสรุป', 'การอธิบาย', 'การนำเสนอ', 'การเขียน', 'การอ่าน', 'การพูด', 'การฟัง', 'การแสดงออก', 'ความคิดสร้างสรรค์', 'นวัตกรรม', 'การประดิษฐ์', 'การออกแบบ', 'การพัฒนา', 'การเปลี่ยนแปลง', 'การแก้ไข', 'การปรับปรุง', 'การจัดการ', 'การบริหาร', 'การวางแผน', 'การตัดสินใจ', 'การทำงาน', 'การประกอบอาชีพ', 'การเงิน', 'การบัญชี', 'การตลาด', 'การโฆษณา', 'การขาย', 'การบริการ', 'การผลิต', 'การขนส่ง', 'การนำเข้า', 'การส่งออก', 'การเจรจา', 'การต่อรอง', 'ข้อตกลง', 'สัญญา', 'พันธะ', 'หน้าที่', 'สิทธิ', 'เสรีภาพ', 'กฎหมาย', 'กฎระเบียบ', 'มาตรการ', 'นโยบาย', 'ยุทธศาสตร์', 'องค์กร', 'หน่วยงาน', 'องค์กรระหว่างประเทศ', 'สหประชาชาติ', 'กองทุน', 'สิทธิมนุษยชน', 'สิทธิเด็ก', 'ความเท่าเทียม', 'ความเสมอภาค', 'สันติภาพ', 'ความขัดแย้ง', 'สงคราม', 'การรุกราน', 'การป้องกัน', 'การทูต', 'การเจรจา', 'ความร่วมมือ', 'การแข่งขัน', 'การเจริญ', 'ความเสื่อม', 'ความมั่นคง', 'ความอ่อนแอ', 'ความสำเร็จ', 'ความล้มเหลว', 'กำลังใจ', 'แรงบันดาลใจ', 'ความภาคภูมิใจ', 'ความอับอาย'],
         'p6': ['อภิปราย', 'วิเคราะห์', 'สังเคราะห์', 'ประเมินผล', 'เปรียบเทียบ', 'แยกแยะ', 'สรุป', 'ข้อเท็จจริง', 'ข้อคิดเห็น', 'อคติ', 'เหตุผล', 'หลักการ', 'ทฤษฎี', 'สมมติฐาน', 'การทดลอง', 'การสำรวจ', 'การวิจัย', 'สถิติ', 'ข้อมูล', 'สารสนเทศ', 'องค์ความรู้', 'ปัญญาประดิษฐ์', 'ระบบอัตโนมัติ', 'หุ่นยนต์', 'การเข้ารหัส', 'โปรแกรมคอมพิวเตอร์', 'เครือข่าย', 'ความปลอดภัย', 'การโจมตี', 'การป้องกัน', 'อาชญากรรม', 'การก่อการร้าย', 'สิทธิมนุษยชน', 'สิทธิเด็ก', 'สนธิสัญญา', 'องค์กรระหว่างประเทศ', 'สหประชาชาติ', 'กองทุน', 'นโยบาย', 'ยุทธศาสตร์', 'นวัตกรรม', 'ความคิดสร้างสรรค์', 'จินตนาการ', 'แรงบันดาลใจ', 'ความสำเร็จ', 'ความล้มเหลว', 'การพัฒนาอย่างยั่งยืน', 'การเปลี่ยนแปลงสภาพภูมิอากาศ', 'ปัญหาความยากจน', 'ความเหลื่อมล้ำ', 'ความมั่นคงทางอาหาร', 'พลังงานหมุนเวียน', 'ชีววิทยา', 'เคมี', 'ฟิสิกส์', 'ดาราศาสตร์', 'ธรณีวิทยา', 'ธรณีฟิสิกส์', 'ชีวเคมี', 'จุลชีววิทยา', 'พันธุศาสตร์', 'นิเวศวิทยา', 'บรรยากาศวิทยา', 'สมุทรศาสตร์', 'วิทยาการคอมพิวเตอร์', 'วิศวกรรมศาสตร์', 'สถาปัตยกรรม', 'การแพทย์', 'เภสัชกรรม', 'ทันตกรรม', 'การพยาบาล', 'การศึกษา', 'จิตวิทยา', 'สังคมวิทยา', 'มานุษยวิทยา', 'รัฐศาสตร์', 'นิติศาสตร์', 'เศรษฐศาสตร์', 'การเงิน', 'การบัญชี', 'การตลาด', 'การโฆษณา', 'การขาย', 'การบริการ', 'การผลิต', 'การขนส่ง', 'การนำเข้า', 'การส่งออก', 'การเจรจา', 'การต่อรอง', 'ข้อตกลง', 'สัญญา', 'พันธะ', 'หน้าที่', 'สิทธิ', 'เสรีภาพ', 'ความรับผิดชอบ', 'ความยุติธรรม', 'ความเสมอภาค', 'สันติภาพ', 'ความขัดแย้ง', 'สงคราม', 'การรุกราน', 'การป้องกัน', 'การทูต', 'การเจรจา', 'ความร่วมมือ', 'การแข่งขัน', 'การเจริญ', 'ความเสื่อม', 'ความมั่นคง', 'ความอ่อนแอ']
     };
+
+    let timerInterval;
+    let startTime;
+    let questionsAnswered = 0;
+    const answerTimes = [];
 
     function getRandomWords(grade, count) {
         const words = wordData[grade];
@@ -276,30 +313,30 @@
         const resultContainer = document.getElementById('word-result');
         resultContainer.innerHTML = '';
         const grades = ['p2', 'p3', 'p4', 'p5', 'p6'];
-        
+
         grades.forEach(grade => {
             const words = getRandomWords(grade, 5);
             const gradeBox = document.createElement('div');
             gradeBox.classList.add('grade-result-box');
-            
+
             let gradeName = '';
             if (grade === 'p2') gradeName = 'ป.2';
             else if (grade === 'p3') gradeName = 'ป.3';
             else if (grade === 'p4') gradeName = 'ป.4';
             else if (grade === 'p5') gradeName = 'ป.5';
             else if (grade === 'p6') gradeName = 'ป.6';
-            
+
             const title = document.createElement('h3');
             title.textContent = `ระดับชั้น ${gradeName}`;
             gradeBox.appendChild(title);
-            
+
             words.forEach(word => {
                 const p = document.createElement('p');
                 p.textContent = word;
                 p.classList.add('result-item');
                 gradeBox.appendChild(p);
             });
-            
+
             resultContainer.appendChild(gradeBox);
         });
     }
@@ -307,33 +344,97 @@
     function generateMultiplication() {
         const multiplier = parseInt(document.getElementById('multiplier-select').value);
         const resultBox = document.getElementById('multiplication-result');
-        resultBox.innerHTML = '<h3>โจทย์สูตรคูณ:</h3>';
-        
+        resultBox.innerHTML = '<h3>โจทย์จะแสดงที่นี่</h3>';
+        document.getElementById('score-summary').innerHTML = '';
+
+        clearInterval(timerInterval);
+        questionsAnswered = 0;
+        answerTimes.length = 0;
+
         for (let i = 0; i < 5; i++) {
             const randomNumber = Math.floor(Math.random() * 12) + 1;
             const answer = multiplier * randomNumber;
-            
+
             const questionDiv = document.createElement('div');
             questionDiv.classList.add('result-item');
+            questionDiv.setAttribute('data-question-number', i + 1);
             questionDiv.innerHTML = `<p>${multiplier} × ${randomNumber} = ?</p>
                                      <p class="answer">เฉลย: ${answer}</p>
                                      <button class="show-answer-btn" onclick="showAnswer(this)">แสดงเฉลย</button>`;
             resultBox.appendChild(questionDiv);
         }
-    }
-    
-    function showAnswer(button) {
-        // หาองค์ประกอบของคำตอบที่อยู่ข้างบนปุ่ม
-        const answer = button.previousElementSibling;
-        
-        // แสดงเฉลย
-        answer.style.display = 'block';
-        
-        // ซ่อนปุ่ม "แสดงเฉลย"
-        button.style.display = 'none';
+
+        startTime = new Date().getTime();
+        timerInterval = setInterval(updateTimer, 100);
     }
 
-    // Tab switching logic
+    function updateTimer() {
+        const currentTime = new Date().getTime();
+        const elapsedTime = (currentTime - startTime) / 1000;
+        document.getElementById('timer').textContent = `เวลาที่ใช้: ${elapsedTime.toFixed(1)} วินาที`;
+    }
+
+    function showAnswer(button) {
+        const answer = button.previousElementSibling;
+        const questionDiv = button.closest('.result-item');
+        const questionNumber = parseInt(questionDiv.getAttribute('data-question-number'));
+        const endTime = new Date().getTime();
+        const timeTaken = (endTime - startTime) / 1000;
+
+        answerTimes.push({
+            number: questionNumber,
+            time: timeTaken
+        });
+
+        answer.style.display = 'block';
+        button.style.display = 'none';
+        questionsAnswered++;
+        startTime = new Date().getTime();
+
+        if (questionsAnswered === 5) {
+            clearInterval(timerInterval);
+            displayMultiplicationSummary();
+        }
+    }
+
+    function displayMultiplicationSummary() {
+        const scoreSummaryDiv = document.getElementById('score-summary');
+        scoreSummaryDiv.innerHTML = '<h3>สรุปผลคะแนน</h3>';
+
+        let totalTime = 0;
+        let totalScore = 0;
+        answerTimes.forEach((item, index) => {
+            const score = calculateScore(item.time);
+            totalTime += item.time;
+            totalScore += score;
+            const summaryItem = document.createElement('p');
+            summaryItem.textContent = `ข้อที่ ${item.number} ใช้เวลา: ${item.time.toFixed(1)} วินาที (คะแนน: ${score} คะแนน)`;
+            scoreSummaryDiv.appendChild(summaryItem);
+        });
+
+        const totalSummary = document.createElement('p');
+        totalSummary.textContent = `เวลาที่ใช้รวมทั้งหมด: ${totalTime.toFixed(1)} วินาที`;
+        totalSummary.style.marginTop = '15px';
+        scoreSummaryDiv.appendChild(totalSummary);
+
+        const overallScore = document.createElement('p');
+        overallScore.textContent = `คะแนนรวม: ${totalScore} คะแนน`;
+        overallScore.style.fontWeight = 'bold';
+        scoreSummaryDiv.appendChild(overallScore);
+    }
+
+    function calculateScore(time) {
+        if (time <= 3) {
+            return 100;
+        } else if (time <= 5) {
+            return 80;
+        } else if (time <= 10) {
+            return 60;
+        } else {
+            return 40;
+        }
+    }
+
     document.querySelectorAll('.tab-button').forEach(button => {
         button.addEventListener('click', () => {
             document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
