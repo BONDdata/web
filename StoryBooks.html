@@ -135,11 +135,16 @@
         #thai-story .story-title { color: var(--thai-text); }
         #english-story .story-title { color: var(--english-text); }
         
+
+        /* === [!] จุดที่ปรับแก้: กำหนดขนาดภาพให้คงที่และจัดกึ่งกลาง === */
         .story-display img {
-            max-width: 100%;
-            height: auto;
+            max-width: 100%;    /* ให้ไม่เกินความกว้างของพื้นที่ */
+            height: auto;       /* ปรับความสูงอัตโนมัติตามสัดส่วน */
+            max-height: 300px;  /* **จำกัดความสูงสูงสุดไว้ที่ 300px** */
+            width: auto;        /* **ให้ความกว้างปรับตามสัดส่วนเมื่อความสูงถูกจำกัด** */
+            display: block;     /* เปลี่ยนเป็น block เพื่อใช้ margin: auto จัดกึ่งกลาง */
+            margin: 15px auto;  /* จัดกึ่งกลางภาพ และเว้นระยะห่างด้านบน-ล่าง */
             border-radius: 10px;
-            margin: 15px 0;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
@@ -224,6 +229,8 @@
                     {
                         title: "กา กับ หมา",
                         img: "https://cdn.pixabay.com/photo/2022/12/24/19/57/crow-7676411_1280.png",
+
+<img src="your-image.jpg" alt="คำอธิบายภาพ" style="width: 200px; height: 150px;">
                         content: "ในนา มีตาสีดา ตาสีดา มีกา กาบินมาเกาะที่ขา ตาสีดามีหมา หมาไล่กา กาบินหนีไปไกล หมาดีใจที่ไล่กาไปได้ ตาสีดาหัวเราะและให้รางวัลหมา หมาก็ดีใจที่ได้ช่วยตาสีดาดูแลนาข้าว ทั้งสองเป็นเพื่อนที่ดีต่อกันตลอดมา"
                     },
                     {
