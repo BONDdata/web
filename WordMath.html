@@ -51,7 +51,7 @@
             border: none;
             padding: 15px 30px;
             cursor: pointer;
-            font-size: 1.2em;
+            font-size: 1.5em;
             transition: all 0.3s ease;
             outline: none;
             flex-grow: 1;
@@ -85,7 +85,7 @@
         h2 {
             color: #4CAF50;
             margin-bottom: 20px;
-            font-size: 2.5em; /* ปรับขนาดหัวข้อให้ใหญ่ขึ้น */
+            font-size: 2.5em;
         }
 
         .controls {
@@ -98,7 +98,7 @@
 
         select, button {
             padding: 12px 20px;
-            font-size: 1em;
+            font-size: 1.5em;
             border-radius: 10px;
             border: 2px solid #4CAF50;
             cursor: pointer;
@@ -125,12 +125,13 @@
         #start-quiz-btn {
             background-color: #F44336;
             color: white;
+            border: 2px solid #333; /* สีขอบใหม่ */
         }
         
         #new-quiz-btn {
-            background-color: #FF9800; /* สีส้มสำหรับปุ่มใหม่ */
+            background-color: #FF9800;
             color: white;
-            display: none; /* ซ่อนปุ่มเริ่มต้น */
+            display: none;
         }
 
         .result-container {
@@ -191,7 +192,7 @@
         }
 
         .result-item p {
-            font-size: 1.2em;
+            font-size: 1.8em;
             margin: 0;
         }
 
@@ -200,7 +201,7 @@
             font-weight: bold;
             margin-top: 5px;
             display: none;
-            font-size: 1.2em;
+            font-size: 1.8em;
         }
 
         .show-answer-btn, .next-question-btn {
@@ -209,12 +210,12 @@
             border: 2px solid #4CAF50;
             padding: 8px 15px;
             margin-top: 10px;
-            font-size: 1.2em;
+            font-size: 1.5em;
             font-weight: 700;
         }
         
         #timer, #score-summary {
-            font-size: 1.2em;
+            font-size: 1.5em;
             font-weight: 700;
             margin-top: 20px;
             color: #4CAF50;
@@ -238,6 +239,27 @@
             margin-top: 20px;
         }
 
+        .grade-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .grade-buttons button {
+            background-color: #FFEB3B;
+            color: #4CAF50;
+            font-weight: 700;
+            border: 2px solid #4CAF50;
+        }
+        
+        .grade-buttons button.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+
         @media (max-width: 768px) {
             .tabs {
                 flex-direction: column;
@@ -253,7 +275,7 @@
                 max-width: 90%;
             }
             .result-item p, .answer {
-                font-size: 1em;
+                font-size: 1.3em;
             }
         }
     </style>
@@ -275,6 +297,13 @@
             <h2>สุ่มคำศัพท์พื้นฐาน</h2>
             <div class="controls">
                 <button onclick="generateAllWords()">สุ่มคำศัพท์ทั้งหมด</button>
+            </div>
+            <div class="grade-buttons">
+                <button onclick="showWordsByGrade('p2', this)">ป.2</button>
+                <button onclick="showWordsByGrade('p3', this)">ป.3</button>
+                <button onclick="showWordsByGrade('p4', this)">ป.4</button>
+                <button onclick="showWordsByGrade('p5', this)">ป.5</button>
+                <button onclick="showWordsByGrade('p6', this)">ป.6</button>
             </div>
             <div class="result-container" id="word-result">
                 </div>
@@ -329,6 +358,7 @@
     let currentQuestionIndex = 0;
     let questionsData = [];
     let answerTimes = [];
+    let wordSets = {}; // Cache for random words by grade
 
     function getRandomWords(grade, count) {
         const words = wordData[grade];
@@ -345,35 +375,61 @@
     }
 
     function generateAllWords() {
-        const resultContainer = document.getElementById('word-result');
-        resultContainer.innerHTML = '';
         const grades = ['p2', 'p3', 'p4', 'p5', 'p6'];
-
+        const resultContainer = document.getElementById('word-result');
+        
+        // Clear previous word sets and generate new ones
+        wordSets = {};
+        resultContainer.innerHTML = '';
+        
         grades.forEach(grade => {
             const words = getRandomWords(grade, 5);
-            const gradeBox = document.createElement('div');
-            gradeBox.classList.add('grade-result-box');
+            wordSets[grade] = words;
+        });
 
-            let gradeName = '';
-            if (grade === 'p2') gradeName = 'ป.2';
-            else if (grade === 'p3') gradeName = 'ป.3';
-            else if (grade === 'p4') gradeName = 'ป.4';
-            else if (grade === 'p5') gradeName = 'ป.5';
-            else if (grade === 'p6') gradeName = 'ป.6';
+        // Show a message or the first grade
+        showWordsByGrade('p2', document.querySelector('.grade-buttons button:first-child'));
+    }
 
-            const title = document.createElement('h3');
-            title.textContent = `ระดับชั้น ${gradeName}`;
-            gradeBox.appendChild(title);
+    function showWordsByGrade(grade, button) {
+        const resultContainer = document.getElementById('word-result');
+        resultContainer.innerHTML = '';
+        
+        document.querySelectorAll('.grade-buttons button').forEach(btn => btn.classList.remove('active'));
+        if (button) {
+            button.classList.add('active');
+        }
 
+        const words = wordSets[grade] || [];
+        
+        const gradeBox = document.createElement('div');
+        gradeBox.classList.add('grade-result-box');
+        
+        let gradeName = '';
+        if (grade === 'p2') gradeName = 'ป.2';
+        else if (grade === 'p3') gradeName = 'ป.3';
+        else if (grade === 'p4') gradeName = 'ป.4';
+        else if (grade === 'p5') gradeName = 'ป.5';
+        else if (grade === 'p6') gradeName = 'ป.6';
+
+        const title = document.createElement('h3');
+        title.textContent = `ระดับชั้น ${gradeName}`;
+        gradeBox.appendChild(title);
+
+        if (words.length > 0) {
             words.forEach(word => {
                 const p = document.createElement('p');
                 p.textContent = word;
                 p.classList.add('result-item');
                 gradeBox.appendChild(p);
             });
-
-            resultContainer.appendChild(gradeBox);
-        });
+        } else {
+            const p = document.createElement('p');
+            p.textContent = 'กรุณากด "สุ่มคำศัพท์ทั้งหมด" ก่อน';
+            gradeBox.appendChild(p);
+        }
+        
+        resultContainer.appendChild(gradeBox);
     }
 
     function startMultiplicationQuiz() {
