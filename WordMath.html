@@ -6,10 +6,10 @@
     <title>เว็บแอปสำหรับฝึกการเรียนรู้</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai+Looped:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Google Noto Fonts:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Noto Sans Thai Looped', sans-serif;
+            font-family: 'Google Noto Fonts', Noto Sans Thai Looped;
             background-color: #F0FFF0;
             color: #333333;
             display: flex;
@@ -85,6 +85,7 @@
         h2 {
             color: #4CAF50;
             margin-bottom: 20px;
+            font-size: 2.5em; /* ปรับขนาดหัวข้อให้ใหญ่ขึ้น */
         }
 
         .controls {
@@ -102,7 +103,7 @@
             border: 2px solid #4CAF50;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-family: 'Noto Sans Thai Looped', sans-serif;
+            font-family: 'Google Noto Fonts', Noto Sans Thai Looped;
         }
 
         select {
@@ -119,6 +120,17 @@
             background-color: #4CAF50;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        #start-quiz-btn {
+            background-color: #F44336;
+            color: white;
+        }
+        
+        #new-quiz-btn {
+            background-color: #FF9800; /* สีส้มสำหรับปุ่มใหม่ */
+            color: white;
+            display: none; /* ซ่อนปุ่มเริ่มต้น */
         }
 
         .result-container {
@@ -191,7 +203,7 @@
             font-size: 1.2em;
         }
 
-        .show-answer-btn {
+        .show-answer-btn, .next-question-btn {
             background-color: #FFEB3B;
             color: #4CAF50;
             border: 2px solid #4CAF50;
@@ -200,7 +212,7 @@
             font-size: 1.2em;
             font-weight: 700;
         }
-
+        
         #timer, #score-summary {
             font-size: 1.2em;
             font-weight: 700;
@@ -210,6 +222,20 @@
 
         #score-summary p {
             margin: 5px 0;
+        }
+        
+        .pass-status {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-top: 20px;
+        }
+
+        .fail-status {
+            font-size: 2em;
+            font-weight: bold;
+            color: #F44336;
+            margin-top: 20px;
         }
 
         @media (max-width: 768px) {
@@ -270,11 +296,18 @@
                     <option value="11">แม่ 11</option>
                     <option value="12">แม่ 12</option>
                 </select>
-                <button onclick="generateMultiplication()">สุ่มโจทย์ 5 ข้อ</button>
+                <select id="question-count-select">
+                    <option value="5" selected>5 ข้อ</option>
+                    <option value="10">10 ข้อ</option>
+                    <option value="15">15 ข้อ</option>
+                    <option value="20">20 ข้อ</option>
+                </select>
+                <button id="start-quiz-btn" onclick="startMultiplicationQuiz()">เริ่มสุ่มโจทย์</button>
+                <button id="new-quiz-btn" onclick="startMultiplicationQuiz()">สุ่มโจทย์ใหม่</button>
             </div>
             <div id="timer"></div>
             <div class="result-box" id="multiplication-result">
-                <h3>โจทย์จะแสดงที่นี่</h3>
+                <h3>กดปุ่ม "เริ่มสุ่มโจทย์" เพื่อเริ่มทำแบบฝึกหัด</h3>
             </div>
             <div id="score-summary"></div>
         </div>
@@ -292,8 +325,10 @@
 
     let timerInterval;
     let startTime;
-    let questionsAnswered = 0;
-    const answerTimes = [];
+    let totalQuestions;
+    let currentQuestionIndex = 0;
+    let questionsData = [];
+    let answerTimes = [];
 
     function getRandomWords(grade, count) {
         const words = wordData[grade];
@@ -341,31 +376,56 @@
         });
     }
 
-    function generateMultiplication() {
+    function startMultiplicationQuiz() {
+        const startBtn = document.getElementById('start-quiz-btn');
+        const newQuizBtn = document.getElementById('new-quiz-btn');
+        
+        startBtn.style.display = 'none';
+        newQuizBtn.style.display = 'inline-block';
+        
         const multiplier = parseInt(document.getElementById('multiplier-select').value);
-        const resultBox = document.getElementById('multiplication-result');
-        resultBox.innerHTML = '<h3>โจทย์จะแสดงที่นี่</h3>';
-        document.getElementById('score-summary').innerHTML = '';
+        totalQuestions = parseInt(document.getElementById('question-count-select').value);
 
-        clearInterval(timerInterval);
-        questionsAnswered = 0;
-        answerTimes.length = 0;
-
-        for (let i = 0; i < 5; i++) {
+        questionsData = [];
+        answerTimes = [];
+        currentQuestionIndex = 0;
+        const usedNumbers = new Set();
+        
+        while (questionsData.length < totalQuestions) {
             const randomNumber = Math.floor(Math.random() * 12) + 1;
-            const answer = multiplier * randomNumber;
+            if (!usedNumbers.has(randomNumber)) {
+                usedNumbers.add(randomNumber);
+                const answer = multiplier * randomNumber;
+                questionsData.push({
+                    multiplier: multiplier,
+                    randomNumber: randomNumber,
+                    answer: answer
+                });
+            }
+        }
+        
+        document.getElementById('score-summary').innerHTML = '';
+        displayNextQuestion();
+    }
 
+    function displayNextQuestion() {
+        const resultBox = document.getElementById('multiplication-result');
+        resultBox.innerHTML = '';
+        
+        if (currentQuestionIndex < totalQuestions) {
+            const question = questionsData[currentQuestionIndex];
             const questionDiv = document.createElement('div');
             questionDiv.classList.add('result-item');
-            questionDiv.setAttribute('data-question-number', i + 1);
-            questionDiv.innerHTML = `<p>${multiplier} × ${randomNumber} = ?</p>
-                                     <p class="answer">เฉลย: ${answer}</p>
-                                     <button class="show-answer-btn" onclick="showAnswer(this)">แสดงเฉลย</button>`;
+            questionDiv.setAttribute('data-question-number', currentQuestionIndex + 1);
+            questionDiv.innerHTML = `<p>${question.multiplier} × ${question.randomNumber} = ?</p>
+                                     <p class="answer">เฉลย: ${question.answer}</p>
+                                     <button class="show-answer-btn" onclick="showAnswer(this)">เฉลย</button>`;
             resultBox.appendChild(questionDiv);
+            
+            startTime = new Date().getTime();
+            clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 100);
         }
-
-        startTime = new Date().getTime();
-        timerInterval = setInterval(updateTimer, 100);
     }
 
     function updateTimer() {
@@ -376,23 +436,21 @@
 
     function showAnswer(button) {
         const answer = button.previousElementSibling;
-        const questionDiv = button.closest('.result-item');
-        const questionNumber = parseInt(questionDiv.getAttribute('data-question-number'));
         const endTime = new Date().getTime();
         const timeTaken = (endTime - startTime) / 1000;
-
-        answerTimes.push({
-            number: questionNumber,
-            time: timeTaken
-        });
-
+        
+        answerTimes.push({ time: timeTaken });
+        
         answer.style.display = 'block';
         button.style.display = 'none';
-        questionsAnswered++;
-        startTime = new Date().getTime();
-
-        if (questionsAnswered === 5) {
-            clearInterval(timerInterval);
+        clearInterval(timerInterval);
+        
+        currentQuestionIndex++;
+        if (currentQuestionIndex < totalQuestions) {
+            setTimeout(displayNextQuestion, 1500);
+        } else {
+            document.getElementById('start-quiz-btn').style.display = 'inline-block';
+            document.getElementById('new-quiz-btn').style.display = 'none';
             displayMultiplicationSummary();
         }
     }
@@ -400,7 +458,7 @@
     function displayMultiplicationSummary() {
         const scoreSummaryDiv = document.getElementById('score-summary');
         scoreSummaryDiv.innerHTML = '<h3>สรุปผลคะแนน</h3>';
-
+        
         let totalTime = 0;
         let totalScore = 0;
         answerTimes.forEach((item, index) => {
@@ -408,7 +466,7 @@
             totalTime += item.time;
             totalScore += score;
             const summaryItem = document.createElement('p');
-            summaryItem.textContent = `ข้อที่ ${item.number} ใช้เวลา: ${item.time.toFixed(1)} วินาที (คะแนน: ${score} คะแนน)`;
+            summaryItem.textContent = `ข้อที่ ${index + 1} ใช้เวลา: ${item.time.toFixed(1)} วินาที (คะแนน: ${score} คะแนน)`;
             scoreSummaryDiv.appendChild(summaryItem);
         });
 
@@ -416,11 +474,23 @@
         totalSummary.textContent = `เวลาที่ใช้รวมทั้งหมด: ${totalTime.toFixed(1)} วินาที`;
         totalSummary.style.marginTop = '15px';
         scoreSummaryDiv.appendChild(totalSummary);
-
+        
         const overallScore = document.createElement('p');
-        overallScore.textContent = `คะแนนรวม: ${totalScore} คะแนน`;
+        const maxScore = totalQuestions * 100;
+        const percentage = (totalScore / maxScore) * 100;
+        overallScore.textContent = `คะแนนรวม: ${totalScore} คะแนน (${percentage.toFixed(0)}%)`;
         overallScore.style.fontWeight = 'bold';
         scoreSummaryDiv.appendChild(overallScore);
+
+        const passStatus = document.createElement('p');
+        if (percentage >= 50) {
+            passStatus.textContent = 'ผ่าน';
+            passStatus.classList.add('pass-status');
+        } else {
+            passStatus.textContent = 'ไม่ผ่าน';
+            passStatus.classList.add('fail-status');
+        }
+        scoreSummaryDiv.appendChild(passStatus);
     }
 
     function calculateScore(time) {
